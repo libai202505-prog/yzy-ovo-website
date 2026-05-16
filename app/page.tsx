@@ -395,7 +395,7 @@ export default function Home() {
   const year = useMemo(() => new Date().getFullYear(), []);
 
   return (
-    <main className="min-h-screen overflow-hidden px-4 pb-6 pt-28 text-slate-700 sm:px-6 lg:px-10">
+    <main className="min-h-screen overflow-hidden px-4 pb-6 pt-6 text-slate-700 sm:px-6 lg:px-10">
       <button type="button" onClick={() => setLang(lang === "zh" ? "en" : "zh")} className="language-button top-language-button">
         {lang === "zh" ? "English" : "中文"}
       </button>
@@ -437,17 +437,17 @@ export default function Home() {
 
         <section className="center-column space-y-6">
           <div className="hero-window glass-panel relative overflow-hidden p-4">
-            <div className="hero-art relative h-56 rounded-[2rem] sm:h-72">
+            <div className="hero-art relative h-36 rounded-[2rem] sm:h-44">
               <Image src="/hero-bg.webp" alt="spring field illustration" fill sizes="(max-width: 1024px) 100vw, 560px" priority className="object-cover hero-bg-image" />
               <div className="hero-shine" />
             </div>
           </div>
 
           <div className="grid gap-6 md:grid-cols-[1fr_0.74fr]">
-            <article className="greeting-card glass-panel p-8 text-center">
-              <Image src="/avatar.webp" alt="yzy-ovo avatar" width={126} height={126} priority className="avatar-big mx-auto rounded-full object-cover" />
-              <h2 className="mt-6 text-3xl font-semibold tracking-tight text-slate-700">{greeting}</h2>
-              <p className="mx-auto mt-3 max-w-sm text-2xl leading-snug text-slate-700">
+            <article className="greeting-card glass-panel p-6 text-center">
+              <Image src="/avatar.webp" alt="yzy-ovo avatar" width={108} height={108} priority className="avatar-big mx-auto rounded-full object-cover" />
+              <h2 className="mt-4 text-3xl font-semibold tracking-tight text-slate-700">{greeting}</h2>
+              <p className="mx-auto mt-2 max-w-sm text-2xl leading-snug text-slate-700">
                 {lang === "zh" ? (
                   <>
                     我是 <span className="text-cyan-500">yzy</span>，很高兴遇见你！
@@ -458,7 +458,7 @@ export default function Home() {
                   </>
                 )}
               </p>
-              <a href="/about" className="about-entry-link mt-6 inline-flex">
+              <a href="/about" className="about-entry-link mt-4 inline-flex">
                 {lang === "zh" ? "进入个人介绍" : "Read About Me"}
               </a>
             </article>
@@ -469,16 +469,7 @@ export default function Home() {
                 <h3 className="mt-5 text-2xl font-semibold text-slate-700">{t.projectTitle}</h3>
                 <p className="mt-3 leading-7 text-slate-500">{t.projectDesc}</p>
               </div>
-              <div className="mt-7 grid gap-3">
-                <a href="/projects" className="project-link primary">
-                  <span>☁</span>
-                  查看项目详情
-                </a>
-                <a href={weatherGithubUrl} target="_blank" rel="noreferrer" className="project-link">
-                  <span>⌘</span>
-                  {t.wikiButton}
-                </a>
-              </div>
+
             </article>
           </div>
 

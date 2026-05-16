@@ -1988,3 +1988,127 @@ button.floating-edit {
     padding: 1.25rem;
   }
 }
+
+/* v19: protected inline editor for the share/recommendation page. */
+.share-admin-actions {
+  z-index: 92;
+}
+
+.resource-card {
+  position: relative;
+}
+
+.resource-card-link {
+  display: block;
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+.share-edit-card {
+  padding-top: 2.35rem;
+}
+
+.share-card-actions {
+  top: 1rem;
+  right: 1.15rem;
+}
+
+.share-inline-editing {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.64);
+  box-shadow: 0 30px 82px rgba(68, 129, 145, 0.16), inset 0 1px 0 rgba(255,255,255,0.72);
+}
+
+.share-edit-top {
+  align-items: flex-start;
+  padding-right: 5.4rem;
+}
+
+.share-icon-input {
+  height: 4.8rem;
+  width: 4.8rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background: rgba(255, 255, 255, 0.55);
+  color: rgb(15 118 110);
+  text-align: center;
+  font-weight: 900;
+  outline: none;
+  transition: border 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.share-icon-input:focus {
+  border-color: rgba(20, 184, 166, 0.5);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.14);
+}
+
+.share-edit-main {
+  min-width: 0;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.share-title-input {
+  font-size: 1.18rem;
+  font-weight: 900;
+}
+
+.share-url-input {
+  color: rgb(100 116 139);
+  font-size: 0.9rem;
+}
+
+.share-edit-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 6.5rem;
+  gap: 0.7rem;
+  margin-top: 1rem;
+}
+
+.share-desc-input {
+  margin-top: 0.8rem;
+  min-height: 5.5rem;
+  resize: vertical;
+  line-height: 1.7;
+}
+
+.share-editor-status {
+  max-width: 56rem;
+}
+
+@media (max-width: 760px) {
+  .share-admin-actions {
+    top: 5.35rem;
+    left: 1rem;
+    right: 1rem;
+    justify-content: flex-end;
+    gap: 0.55rem;
+  }
+
+  .share-admin-actions .write-small-button,
+  .share-admin-actions .write-tool-button {
+    min-height: 2.55rem;
+    border-radius: 0.85rem;
+    padding-left: 0.9rem;
+    padding-right: 0.9rem;
+    font-size: 0.92rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .share-edit-top {
+    grid-template-columns: 1fr;
+    padding-right: 0;
+  }
+
+  .share-icon-input {
+    height: 3.8rem;
+    width: 100%;
+  }
+
+  .share-edit-row {
+    grid-template-columns: 1fr;
+  }
+}
