@@ -1326,3 +1326,36 @@ body::after {
     margin: 1rem;
   }
 }
+
+/* v11: protected visual editor for the about page. */
+.about-edit-page {
+  background: radial-gradient(circle at 20% 84%, rgba(238, 239, 176, 0.58), transparent 34%),
+    radial-gradient(circle at 88% 72%, rgba(94, 217, 190, 0.55), transparent 42%),
+    linear-gradient(135deg, #f8faf2 0%, #e9f8fb 52%, #d9f5e7 100%);
+}
+
+.lang-chip {
+  min-width: 74px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.42);
+  padding: 0.66rem 1rem;
+  color: #64748b;
+  font-weight: 700;
+  transition: transform 180ms ease, background 180ms ease, color 180ms ease;
+}
+
+.lang-chip:hover,
+.lang-chip.active {
+  transform: translateY(-1px);
+  background: #35c4b6;
+  color: #ffffff;
+}
+
+.about-edit-textarea {
+  min-height: 250px;
+}
+
+.about-edit-preview {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}

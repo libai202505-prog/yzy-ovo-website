@@ -25,6 +25,7 @@ function isActive(pathname: string, href: string) {
 
 export default function SiteNav({ showEdit = true }: { showEdit?: boolean }) {
   const pathname = usePathname();
+  const editHref = pathname.startsWith("/about") ? "/about/edit" : "/write";
 
   return (
     <>
@@ -40,7 +41,7 @@ export default function SiteNav({ showEdit = true }: { showEdit?: boolean }) {
       </nav>
 
       {showEdit ? (
-        <Link href="/write" className={isActive(pathname, "/write") ? "floating-edit active" : "floating-edit"}>
+        <Link href={editHref} className={isActive(pathname, editHref) ? "floating-edit active" : "floating-edit"}>
           编辑
         </Link>
       ) : null}
