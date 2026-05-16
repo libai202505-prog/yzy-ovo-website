@@ -41,7 +41,7 @@ export default function AboutEditPage() {
   const [lang, setLang] = useState<Lang>("zh");
   const [content, setContent] = useState<AboutContent>(defaultAboutContent);
   const [secret, setSecret] = useState("");
-  const [status, setStatus] = useState("修改个人介绍需要管理员密钥；普通访客只能看，不能保存到线上。");
+  const [status, setStatus] = useState("修改个人介绍需要管理员密钥文件；普通访客只能看，不能保存到线上。");
   const current = content[lang];
 
   const bulletsText = useMemo(() => current.bullets.join("\n"), [current.bullets]);
@@ -100,7 +100,7 @@ export default function AboutEditPage() {
 
   async function saveOnline() {
     if (!secret.trim()) {
-      setStatus("请先导入或输入管理员密钥。");
+      setStatus("请先导入管理员密钥文件。");
       return;
     }
 
@@ -179,11 +179,10 @@ export default function AboutEditPage() {
 
         <aside className="space-y-6">
           <section className="glass-panel p-6">
-            <p className="mb-4 text-sm font-semibold text-slate-700">管理员密钥</p>
+            <p className="mb-4 text-sm font-semibold text-slate-700">管理员验证</p>
             <input ref={secretInputRef} type="file" accept=".txt,.json,.env,.key,text/plain,application/json" className="hidden" onChange={handleSecretImport} />
-            <input value={secret} onChange={(event) => setSecret(event.target.value)} className="write-input" type="password" placeholder="ADMIN_SECRET" />
-            <button type="button" className="write-small-button mt-3 w-full" onClick={() => secretInputRef.current?.click()}>导入密钥文件</button>
-            <p className="mt-3 text-xs leading-6 text-slate-500">密钥不会放进 GitHub，只保存在当前浏览器。真正保存时会发给 Vercel 后端验证。</p>
+            <button type="button" className="write-tool-button primary w-full" onClick={() => secretInputRef.current?.click()}>导入密钥文件</button>
+            <p className="mt-3 text-xs leading-6 text-slate-500">{secret ? "已导入密钥：可以保存到线上。" : "未导入密钥：只能编辑预览，不能保存到线上。"}</p>
           </section>
 
           <section className="glass-panel p-6">

@@ -1359,3 +1359,78 @@ body::after {
 .about-edit-preview {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
 }
+
+/* v13: protected inline editor for the projects page. */
+.project-admin-actions {
+  position: fixed;
+  right: 2.25rem;
+  top: 1.25rem;
+  z-index: 50;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.project-edit-card {
+  position: relative;
+  min-height: 15.5rem;
+  padding-top: 2.35rem;
+}
+
+.project-card-actions {
+  position: absolute;
+  right: 1.35rem;
+  top: 1.05rem;
+  display: flex;
+  gap: 0.9rem;
+}
+
+.project-card-actions button {
+  border: 0;
+  background: transparent;
+  color: #38bdf8;
+  font-size: 0.86rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: color 180ms ease, transform 180ms ease;
+}
+
+.project-card-actions button:hover {
+  color: #0f766e;
+  transform: translateY(-1px);
+}
+
+.project-card-actions button.danger {
+  color: #fb7185;
+}
+
+.project-card-actions button.danger:hover {
+  color: #e11d48;
+}
+
+.project-editor-panel {
+  border-radius: 2.2rem;
+}
+
+.project-summary-input {
+  margin-top: 0;
+  max-width: none;
+  min-height: 8rem;
+  padding: 1rem;
+}
+
+.project-status {
+  max-width: 54rem;
+}
+
+@media (max-width: 760px) {
+  .project-admin-actions {
+    left: 1rem;
+    right: 1rem;
+    justify-content: flex-end;
+  }
+
+  .project-edit-card {
+    padding-top: 3.4rem;
+  }
+}
