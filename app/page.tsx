@@ -1,204 +1,251 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type Lang = "zh" | "en";
 
 const copy = {
   zh: {
-    nav: ["首页", "日志", "项目", "友链"],
-    badge: "Personal Wiki · Blog · Projects",
-    title: "这里是 yzy-ovo 的浅蓝色小宇宙。",
-    subtitle:
-      "用温柔的渐变蓝，收藏生活碎片、学习笔记、项目记录和喜欢的链接。慢慢写，慢慢长大。",
-    primary: "开始阅读",
-    secondary: "查看项目",
-    statusTitle: "现在",
-    status:
-      "正在搭建一个属于自己的双语个人网站。先放上首页、文章入口、项目卡片和友链，之后可以继续扩展 Markdown 博客。",
-    cards: [
-      { title: "Blog", text: "记录日常、技术、灵感与碎碎念。", meta: "12 notes" },
-      { title: "Projects", text: "展示正在做或已经完成的小项目。", meta: "4 works" },
-      { title: "Wiki", text: "把常用资料和知识整理成自己的资料库。", meta: "always updating" }
-    ],
-    postsTitle: "最新文章",
-    posts: [
-      ["欢迎来到 yzy-ovo", "第一篇文章可以写建站记录、关于自己，或者为什么想拥有这个网站。"],
-      ["我的收藏夹", "把喜欢的网站、工具、图片风格、教程资料都放在这里。"],
-      ["浅蓝色主题实验", "记录配色、字体、布局和小组件的调整过程。"]
-    ],
-    linksTitle: "友链 / Links",
-    links: ["Design Notes", "Anime Gallery", "Study Wiki", "Tiny Tools"],
-    footer: "Made with Next.js · Deployed on Vercel · yzy-ovo.com"
+    status: "开发中",
+    menuTitle: "GENERAL",
+    nav: ["近期文章", "我的项目", "关于网站", "推荐分享", "优秀博客"],
+    write: "写文章",
+    greeting: "Good Morning",
+    greetingLine: "我是 yzy，很高兴遇见你！",
+    latest: "最新文章",
+    latestTitle: "建站记录 & 蓝色主题实验",
+    latestDesc: "把这个空间做成自己的双语个人 Wiki、博客和项目展示页。",
+    dateLabel: "今天",
+    project: "随机推荐",
+    projectTitle: "yzy-ovo Wiki",
+    projectDesc: "收藏灵感、笔记、项目和喜欢的链接。",
+    music: "Close To You",
+    friends: "友链 / Blogroll",
+    about: "关于这里",
+    aboutText: "一个浅蓝色渐变的小空间，记录生活碎片、学习笔记、作品和灵感。风格参考了个人 Wiki 的布局，但内容、配色和组件都重新设计为 yzy-ovo。",
+    buttons: ["Github", "Bilibili", "小红书", "Email"],
+    footer: "Made with Next.js · yzy-ovo"
   },
   en: {
-    nav: ["Home", "Journal", "Projects", "Links"],
-    badge: "Personal Wiki · Blog · Projects",
-    title: "Welcome to yzy-ovo's soft blue universe.",
-    subtitle:
-      "A gentle bilingual space for notes, projects, memories, bookmarks, and everything worth keeping.",
-    primary: "Start reading",
-    secondary: "View projects",
-    statusTitle: "Now",
-    status:
-      "Building a personal bilingual website with a soft gradient-blue style. The first version includes a homepage, posts, project cards, and links.",
-    cards: [
-      { title: "Blog", text: "Thoughts, daily notes, tech logs, and tiny ideas.", meta: "12 notes" },
-      { title: "Projects", text: "A place for finished work and ongoing experiments.", meta: "4 works" },
-      { title: "Wiki", text: "A personal knowledge base that keeps growing.", meta: "always updating" }
-    ],
-    postsTitle: "Latest Posts",
-    posts: [
-      ["Welcome to yzy-ovo", "The first post can be about this website, yourself, or why you wanted a personal space."],
-      ["My Bookmarks", "Collect favorite websites, tools, visual references, and tutorials here."],
-      ["Soft Blue Theme Lab", "Document the process of adjusting colors, typography, layouts, and widgets."]
-    ],
-    linksTitle: "Blogroll / Links",
-    links: ["Design Notes", "Anime Gallery", "Study Wiki", "Tiny Tools"],
-    footer: "Made with Next.js · Deployed on Vercel · yzy-ovo.com"
+    status: "Building",
+    menuTitle: "GENERAL",
+    nav: ["Recent Posts", "Projects", "About Site", "Recommendations", "Blogroll"],
+    write: "New Post",
+    greeting: "Good Morning",
+    greetingLine: "I'm yzy, nice to meet you!",
+    latest: "Latest Post",
+    latestTitle: "Website Log & Soft Blue Theme Lab",
+    latestDesc: "Building a bilingual personal wiki, blog, and project showcase.",
+    dateLabel: "Today",
+    project: "Random Pick",
+    projectTitle: "yzy-ovo Wiki",
+    projectDesc: "A place for ideas, notes, projects, and favorite links.",
+    music: "Close To You",
+    friends: "Blogroll / Links",
+    about: "About this place",
+    aboutText: "A soft gradient-blue space for memories, notes, work, and tiny ideas. Inspired by personal wiki dashboards, redesigned with original yzy-ovo content, colors, and widgets.",
+    buttons: ["Github", "Bilibili", "RedNote", "Email"],
+    footer: "Made with Next.js · yzy-ovo"
   }
 };
 
+function pad(value: number) {
+  return String(value).padStart(2, "0");
+}
+
+function MiniCalendar({ now, lang }: { now: Date | null; lang: Lang }) {
+  const base = now ?? new Date(2026, 4, 15);
+  const year = base.getFullYear();
+  const month = base.getMonth();
+  const today = base.getDate();
+  const firstDay = (new Date(year, month, 1).getDay() + 6) % 7;
+  const totalDays = new Date(year, month + 1, 0).getDate();
+  const weekday = ["日", "一", "二", "三", "四", "五", "六"];
+  const weekdayEn = ["S", "M", "T", "W", "T", "F", "S"];
+  const blanks = Array.from({ length: firstDay }, (_, index) => `blank-${index}`);
+  const days = Array.from({ length: totalDays }, (_, index) => index + 1);
+
+  return (
+    <div className="calendar-card widget-card">
+      <div className="mb-5 flex items-center justify-between text-sm text-slate-500">
+        <span>
+          {lang === "zh" ? `${year}/${month + 1}/${today}` : `${month + 1}/${today}/${year}`}
+        </span>
+        <span>{lang === "zh" ? weekday[base.getDay()] : weekdayEn[base.getDay()]}</span>
+      </div>
+      <div className="grid grid-cols-7 gap-3 text-center text-sm text-slate-500">
+        {(lang === "zh" ? ["一", "二", "三", "四", "五", "六", "日"] : ["M", "T", "W", "T", "F", "S", "S"]).map((day) => (
+          <span key={day} className="font-medium text-slate-500">
+            {day}
+          </span>
+        ))}
+        {blanks.map((blank) => (
+          <span key={blank} />
+        ))}
+        {days.map((day) => (
+          <span key={day} className={day === today ? "calendar-active" : "calendar-day"}>
+            {day}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Clock({ now }: { now: Date | null }) {
+  const text = now ? `${pad(now.getHours())}:${pad(now.getMinutes())}` : "--:--";
+  return <div className="clock-card widget-card font-mono text-5xl tracking-[0.08em] text-slate-700 sm:text-6xl">{text}</div>;
+}
+
 export default function Home() {
   const [lang, setLang] = useState<Lang>("zh");
+  const [now, setNow] = useState<Date | null>(null);
   const t = copy[lang];
+
+  useEffect(() => {
+    setNow(new Date());
+    const timer = window.setInterval(() => setNow(new Date()), 1000 * 30);
+    return () => window.clearInterval(timer);
+  }, []);
+
   const year = useMemo(() => new Date().getFullYear(), []);
 
   return (
-    <main className="relative mx-auto flex min-h-screen w-full max-w-6xl flex-col px-5 py-6 sm:px-8 lg:px-10">
-      <header className="glass sticky top-4 z-20 flex items-center justify-between rounded-full px-5 py-3 shadow-soft">
-        <a href="#home" className="flex items-center gap-3" aria-label="yzy-ovo home">
-          <Image
-            src="/avatar.webp"
-            alt="yzy-ovo avatar"
-            width={42}
-            height={42}
-            priority
-            className="rounded-full border border-white/70 object-cover shadow-sm"
-          />
-          <span className="font-semibold tracking-wide">yzy-ovo</span>
-        </a>
-
-        <nav className="hidden items-center gap-7 text-sm text-slate-600 md:flex">
-          {t.nav.map((item) => (
-            <a key={item} href="#sections" className="soft-link hover:text-slate-900">
-              {item}
-            </a>
-          ))}
-        </nav>
-
-        <button
-          type="button"
-          onClick={() => setLang(lang === "zh" ? "en" : "zh")}
-          className="rounded-full border border-sky-200/70 bg-white/70 px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-white"
-          aria-label="Switch language"
-        >
-          {lang === "zh" ? "EN" : "中文"}
-        </button>
-      </header>
-
-      <section id="home" className="grid flex-1 items-center gap-10 py-16 lg:grid-cols-[1.08fr_0.92fr] lg:py-24">
-        <div>
-          <div className="mb-6 inline-flex items-center rounded-full border border-sky-200/80 bg-white/60 px-4 py-2 text-sm font-medium text-sky-800 shadow-sm backdrop-blur">
-            {t.badge}
+    <main className="min-h-screen overflow-hidden px-4 py-6 text-slate-700 sm:px-6 lg:px-10">
+      <div className="site-shell mx-auto grid max-w-7xl gap-6 lg:grid-cols-[310px_minmax(420px,1fr)_390px]">
+        <aside className="sidebar glass-panel p-7 lg:sticky lg:top-6 lg:h-[calc(100vh-48px)]">
+          <div className="flex items-center gap-4">
+            <Image src="/avatar.webp" alt="yzy-ovo avatar" width={56} height={56} priority className="avatar-ring rounded-full object-cover" />
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl font-semibold tracking-tight text-slate-700">yzy-ovo</h1>
+                <span className="rounded-full bg-cyan-100 px-2.5 py-1 text-xs font-semibold text-cyan-600">{t.status}</span>
+              </div>
+              <p className="mt-1 text-sm text-slate-500">Personal Wiki</p>
+            </div>
           </div>
-          <h1 className="max-w-3xl text-4xl font-bold leading-tight tracking-tight text-ink sm:text-6xl">
-            {t.title}
-          </h1>
-          <p className="mt-6 max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">{t.subtitle}</p>
 
-          <div className="mt-8 flex flex-wrap gap-4">
-            <a
-              href="#posts"
-              className="rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white shadow-soft transition hover:-translate-y-0.5 hover:bg-slate-800"
-            >
-              {t.primary}
-            </a>
-            <a
-              href="#sections"
-              className="rounded-full border border-sky-200 bg-white/70 px-6 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-white"
-            >
-              {t.secondary}
-            </a>
-          </div>
-        </div>
+          <div className="mt-10 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{t.menuTitle}</div>
+          <nav className="mt-5 space-y-3">
+            {t.nav.map((item, index) => (
+              <a key={item} href={`#section-${index}`} className={index === 3 ? "nav-pill is-active" : "nav-pill"}>
+                <span className="nav-icon">{["▤", "◇", "○", "★", "◎"][index]}</span>
+                <span>{item}</span>
+              </a>
+            ))}
+          </nav>
 
-        <aside className="glass relative overflow-hidden rounded-[2rem] p-5 shadow-soft">
-          <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-sky-200/55 blur-3xl" />
-          <div className="absolute -bottom-20 -left-12 h-52 w-52 rounded-full bg-blue-100/80 blur-3xl" />
-          <div className="relative rounded-[1.5rem] border border-white/70 bg-white/50 p-4">
-            <Image
-              src="/avatar.webp"
-              alt="yzy-ovo avatar illustration"
-              width={640}
-              height={640}
-              className="aspect-square w-full rounded-[1.35rem] object-cover shadow-sm"
-              priority
-            />
-          </div>
-          <div className="relative mt-5 rounded-3xl border border-white/70 bg-white/55 p-5">
-            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-sky-700">{t.statusTitle}</p>
-            <p className="mt-3 leading-7 text-slate-600">{t.status}</p>
-          </div>
-        </aside>
-      </section>
-
-      <section id="sections" className="grid gap-5 md:grid-cols-3">
-        {t.cards.map((card) => (
-          <article key={card.title} className="glass rounded-[1.75rem] p-6 shadow-soft transition hover:-translate-y-1">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-sky-700">{card.meta}</p>
-            <h2 className="mt-5 text-2xl font-bold text-ink">{card.title}</h2>
-            <p className="mt-3 leading-7 text-slate-600">{card.text}</p>
+          <article id="section-0" className="latest-card mt-8 rounded-[2rem] border border-white/70 bg-white/45 p-5 shadow-sm">
+            <p className="text-sm text-slate-500">{t.latest}</p>
+            <div className="mt-4 flex gap-3">
+              <Image src="/avatar.webp" alt="latest post" width={62} height={62} className="h-[62px] w-[62px] rounded-2xl object-cover" />
+              <div>
+                <h2 className="font-semibold leading-snug text-slate-700">{t.latestTitle}</h2>
+                <p className="mt-1 line-clamp-2 text-sm leading-6 text-slate-500">{t.latestDesc}</p>
+              </div>
+            </div>
           </article>
-        ))}
-      </section>
+        </aside>
 
-      <section id="posts" className="grid gap-6 py-16 lg:grid-cols-[0.72fr_1.28fr]">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-sky-700">Journal</p>
-          <h2 className="mt-3 text-3xl font-bold text-ink">{t.postsTitle}</h2>
-        </div>
-        <div className="space-y-4">
-          {t.posts.map(([title, desc], index) => (
-            <article key={title} className="glass group rounded-[1.5rem] p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-soft">
-              <div className="flex items-start gap-4">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/70 text-sm font-bold text-sky-800">
-                  0{index + 1}
-                </span>
-                <div>
-                  <h3 className="text-lg font-semibold text-ink group-hover:text-sky-800">{title}</h3>
-                  <p className="mt-2 leading-7 text-slate-600">{desc}</p>
+        <section className="center-column space-y-6">
+          <div className="hero-window glass-panel relative overflow-hidden p-4">
+            <div className="hero-art relative h-56 rounded-[2rem] sm:h-72">
+              <Image src="/avatar.webp" alt="soft blue illustration" fill sizes="(max-width: 1024px) 100vw, 560px" priority className="object-cover opacity-90" />
+              <div className="hero-shine" />
+            </div>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-[1fr_0.74fr]">
+            <article className="greeting-card glass-panel p-8 text-center">
+              <Image src="/avatar.webp" alt="yzy-ovo avatar" width={126} height={126} priority className="avatar-big mx-auto rounded-full object-cover" />
+              <h2 className="mt-6 text-3xl font-semibold tracking-tight text-slate-700">{t.greeting}</h2>
+              <p className="mx-auto mt-3 max-w-sm text-2xl leading-snug text-slate-700">
+                {lang === "zh" ? (
+                  <>
+                    我是 <span className="text-cyan-500">yzy</span>，很高兴遇见你！
+                  </>
+                ) : (
+                  <>
+                    I'm <span className="text-cyan-500">yzy</span>, nice to meet you!
+                  </>
+                )}
+              </p>
+            </article>
+
+            <article id="section-1" className="project-card glass-panel flex flex-col justify-between p-7">
+              <div>
+                <p className="text-sm text-slate-500">{t.project}</p>
+                <h3 className="mt-5 text-2xl font-semibold text-slate-700">{t.projectTitle}</h3>
+                <p className="mt-3 leading-7 text-slate-500">{t.projectDesc}</p>
+              </div>
+              <div className="mt-7 flex items-center gap-3 rounded-2xl bg-white/55 p-3">
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-100 text-2xl text-cyan-500">✦</span>
+                <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/80">
+                  <div className="h-full w-2/3 rounded-full bg-cyan-300" />
                 </div>
               </div>
             </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="glass mb-10 rounded-[2rem] p-6 shadow-soft">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-sky-700">Friends</p>
-            <h2 className="mt-2 text-3xl font-bold text-ink">{t.linksTitle}</h2>
           </div>
-          <div className="flex flex-wrap gap-3">
-            {t.links.map((link) => (
-              <a
-                key={link}
-                href="#"
-                className="rounded-full border border-sky-200 bg-white/65 px-4 py-2 text-sm font-medium text-slate-700 transition hover:-translate-y-0.5 hover:bg-white"
-              >
-                {link}
+
+          <div className="flex flex-wrap items-center gap-3">
+            {t.buttons.map((button, index) => (
+              <a key={button} href="#" className={index === 0 ? "social-button social-dark" : "social-button"}>
+                <span>{["●", "▣", "▥", "✉"][index]}</span>
+                {button}
               </a>
             ))}
+            <button type="button" onClick={() => setLang(lang === "zh" ? "en" : "zh")} className="language-button">
+              {lang === "zh" ? "English" : "中文"}
+            </button>
           </div>
-        </div>
-      </section>
 
-      <footer className="pb-8 text-center text-sm text-slate-500">
-        © {year} {t.footer}
-      </footer>
+          <article id="section-2" className="about-card glass-panel p-7">
+            <p className="text-sm font-medium uppercase tracking-[0.25em] text-cyan-500">About</p>
+            <h2 className="mt-3 text-3xl font-semibold text-slate-700">{t.about}</h2>
+            <p className="mt-4 leading-8 text-slate-500">{t.aboutText}</p>
+          </article>
+        </section>
+
+        <aside className="right-column space-y-6">
+          <div className="flex items-center gap-5">
+            <a href="#section-0" className="write-button">
+              <span>✎</span>
+              {t.write}
+            </a>
+            <div className="dot-grid" aria-hidden="true" />
+          </div>
+
+          <Clock now={now} />
+          <MiniCalendar now={now} lang={lang} />
+
+          <article id="section-3" className="music-card glass-panel flex items-center gap-5 p-5">
+            <span className="text-4xl text-cyan-400">♪</span>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-slate-500">{t.music}</p>
+              <div className="mt-3 flex items-center gap-3">
+                <span className="h-3 w-3 rounded-full bg-cyan-400" />
+                <div className="h-2 flex-1 rounded-full bg-white/70">
+                  <div className="h-full w-1/3 rounded-full bg-cyan-300" />
+                </div>
+              </div>
+            </div>
+            <button className="play-button" aria-label="play" type="button">▶</button>
+          </article>
+
+          <article id="section-4" className="friends-card glass-panel p-6">
+            <p className="text-sm font-medium uppercase tracking-[0.25em] text-cyan-500">Friends</p>
+            <h2 className="mt-2 text-2xl font-semibold text-slate-700">{t.friends}</h2>
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              {["Lvy style", "Design", "Study", "Gallery"].map((friend) => (
+                <a key={friend} href="#" className="friend-pill">{friend}</a>
+              ))}
+            </div>
+          </article>
+        </aside>
+      </div>
+
+      <footer className="mx-auto mt-8 max-w-7xl pb-4 text-center text-sm text-slate-500">© {year} {t.footer}</footer>
     </main>
   );
 }

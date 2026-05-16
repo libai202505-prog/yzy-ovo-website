@@ -3,7 +3,11 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "yzy-ovo | Personal Wiki",
-  description: "A soft blue bilingual personal wiki, blog, and project space."
+  description: "A soft blue bilingual personal wiki dashboard.",
+  icons: {
+    icon: "/icon.png",
+    apple: "/apple-icon.png"
+  }
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
