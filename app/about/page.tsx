@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import SiteNav from "../../components/SiteNav";
 import { useState } from "react";
 
 type Lang = "zh" | "en";
@@ -63,7 +64,8 @@ export default function AboutPage() {
   const t = aboutCopy[lang];
 
   return (
-    <main className="about-page min-h-screen px-5 py-8 text-slate-700 sm:px-8 lg:px-12">
+    <main className="about-page min-h-screen px-5 pb-12 pt-28 text-slate-700 sm:px-8 lg:px-12">
+      <SiteNav />
       <button type="button" onClick={() => setLang(lang === "zh" ? "en" : "zh")} className="language-button top-language-button">
         {t.switchText}
       </button>

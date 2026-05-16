@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import SiteNav from "../components/SiteNav";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
 type Lang = "zh" | "en";
@@ -108,7 +109,7 @@ const socialLinks = [
   }
 ];
 
-const navLinks = ["#section-0", "#section-1", "/about", "#section-3", "#section-4"];
+const navLinks = ["/posts", "/projects", "/about", "/share", "/blogroll"];
 const musicUrl = "https://music.163.com/#/song?id=438456232";
 const weatherUrl = "https://libai202505-prog.github.io/weather-websites-of-y/";
 const githubUrl = "https://github.com/libai202505-prog";
@@ -395,7 +396,8 @@ export default function Home() {
   const year = useMemo(() => new Date().getFullYear(), []);
 
   return (
-    <main className="min-h-screen overflow-hidden px-4 py-6 text-slate-700 sm:px-6 lg:px-10">
+    <main className="min-h-screen overflow-hidden px-4 pb-6 pt-28 text-slate-700 sm:px-6 lg:px-10">
+      <SiteNav />
       <button type="button" onClick={() => setLang(lang === "zh" ? "en" : "zh")} className="language-button top-language-button">
         {lang === "zh" ? "English" : "中文"}
       </button>
@@ -425,7 +427,7 @@ export default function Home() {
 
           <article id="section-0" className="latest-card mt-8 rounded-[2rem] border border-white/70 bg-white/45 p-5 shadow-sm">
             <p className="text-sm text-slate-500">{t.latest}</p>
-            <a href="/about" className="latest-row mt-4">
+            <a href="/posts/site-log" className="latest-row mt-4">
               <Image src="/avatar.webp" alt="latest post" width={58} height={58} className="latest-thumb rounded-2xl object-cover" />
               <div className="latest-copy min-w-0">
                 <h2 className="latest-title">{t.latestTitle}</h2>
@@ -470,9 +472,9 @@ export default function Home() {
                 <p className="mt-3 leading-7 text-slate-500">{t.projectDesc}</p>
               </div>
               <div className="mt-7 grid gap-3">
-                <a href={weatherUrl} target="_blank" rel="noreferrer" className="project-link primary">
+                <a href="/projects" className="project-link primary">
                   <span>☁</span>
-                  {t.projectButton}
+                  查看项目详情
                 </a>
                 <a href={weatherGithubUrl} target="_blank" rel="noreferrer" className="project-link">
                   <span>⌘</span>
@@ -502,7 +504,7 @@ export default function Home() {
 
         <aside className="right-column space-y-6">
           <div className="flex items-center gap-5 pr-28 lg:pr-0">
-            <a href="/write" className="write-button">
+            <a href="/write" className="write-button hidden lg:inline-flex">
               <span>✎</span>
               {t.write}
             </a>

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import SiteNav from "../../components/SiteNav";
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 
 type Draft = {
@@ -82,7 +83,8 @@ export default function WritePage() {
 
     if (saved) {
       try {
-        setDraft({ ...defaultDraft, publishedAt: getDefaultDate(), ...(JSON.parse(saved) as Draft) });
+        const parsed = JSON.parse(saved) as Partial<Draft>;
+        setDraft({ ...defaultDraft, ...parsed, publishedAt: parsed.publishedAt ?? getDefaultDate() });
       } catch {
         setDraft({ ...defaultDraft, publishedAt: getDefaultDate() });
       }
@@ -158,6 +160,7 @@ export default function WritePage() {
 
   return (
     <main className="write-page min-h-screen text-slate-700">
+      <SiteNav showEdit={false} />
       <section className="write-hero relative overflow-hidden">
         <img src="/hero-bg.webp" alt="cover background" className="h-full w-full object-cover" />
         <div className="write-hero-fade" />
