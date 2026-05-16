@@ -1434,3 +1434,202 @@ body::after {
     padding-top: 3.4rem;
   }
 }
+
+/* v14: project edit mode is hidden until the top-right Edit button is clicked. */
+button.floating-edit {
+  cursor: pointer;
+}
+
+.project-view-card {
+  min-height: 15.5rem;
+}
+
+.project-admin-actions {
+  align-items: center;
+}
+
+/* v14: recent posts timeline with scroll-in motion and a More button. */
+.posts-tab {
+  min-width: 3rem;
+  border-radius: 0.85rem;
+  padding: 0.55rem 0.95rem;
+  color: rgb(100 116 139);
+  font-weight: 800;
+  transition: transform 180ms ease, background 180ms ease, color 180ms ease, box-shadow 180ms ease;
+}
+
+.posts-tab:hover,
+.posts-tab.active {
+  transform: translateY(-1px);
+  background: linear-gradient(135deg, rgba(48, 213, 200, 0.95), rgba(31, 180, 169, 0.92));
+  color: white;
+  box-shadow: 0 14px 30px rgba(45, 212, 191, 0.2);
+}
+
+.posts-timeline-space {
+  display: grid;
+  gap: 2rem;
+}
+
+.timeline-year-card {
+  border-radius: 2.4rem;
+  padding: 2rem;
+  overflow: hidden;
+}
+
+.timeline-year-head {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  color: rgb(51 65 85);
+}
+
+.timeline-year-head h2 {
+  font-size: 1.35rem;
+  font-weight: 850;
+}
+
+.timeline-year-head span {
+  position: relative;
+  color: rgb(100 116 139);
+}
+
+.timeline-year-head span::before {
+  content: "";
+  display: inline-block;
+  height: 0.45rem;
+  width: 0.45rem;
+  margin: 0 0.55rem 0.12rem 0;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.55);
+}
+
+.timeline-list {
+  position: relative;
+  margin-top: 1.25rem;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.timeline-list::before {
+  content: "";
+  position: absolute;
+  left: 4.45rem;
+  top: 0.2rem;
+  bottom: 0.2rem;
+  width: 2px;
+  border-radius: 999px;
+  background: repeating-linear-gradient(to bottom, rgba(148, 163, 184, 0.45) 0 8px, transparent 8px 15px);
+}
+
+.timeline-row {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 4.2rem 1.2rem minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.65rem;
+  border-radius: 1rem;
+  padding: 0.72rem 0.85rem;
+  text-decoration: none;
+  color: rgb(51 65 85);
+  transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
+}
+
+.timeline-row:hover {
+  transform: translateX(4px);
+  background: rgba(255, 255, 255, 0.56);
+  box-shadow: 0 14px 34px rgba(70, 133, 154, 0.11);
+}
+
+.timeline-row time {
+  color: rgb(100 116 139);
+  font-variant-numeric: tabular-nums;
+}
+
+.timeline-row strong {
+  min-width: 0;
+  font-weight: 700;
+}
+
+.timeline-row small {
+  color: rgb(100 116 139);
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.timeline-row em {
+  color: rgb(100 116 139);
+  font-style: normal;
+  white-space: nowrap;
+}
+
+.timeline-dot {
+  height: 0.38rem;
+  width: 0.38rem;
+  border-radius: 999px;
+  background: rgb(100 116 139);
+  box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.48);
+}
+
+.timeline-row:hover .timeline-dot {
+  height: 0.7rem;
+  width: 0.35rem;
+  border-radius: 999px;
+  background: rgb(45 212 191);
+}
+
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(34px) scale(0.985);
+  transition: opacity 650ms ease, transform 650ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scroll-reveal.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.more-posts-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.76);
+  background: rgba(255, 255, 255, 0.58);
+  padding: 0.78rem 1.25rem;
+  color: rgb(71 85 105);
+  font-weight: 800;
+  box-shadow: 0 18px 42px rgba(70, 133, 154, 0.12);
+  transition: transform 180ms ease, background 180ms ease, color 180ms ease;
+}
+
+.more-posts-button:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.86);
+  color: rgb(15 118 110);
+}
+
+.more-posts-button span {
+  color: rgb(14 165 233);
+  font-size: 1.15rem;
+}
+
+@media (max-width: 720px) {
+  .timeline-year-card {
+    padding: 1.35rem;
+  }
+
+  .timeline-list::before {
+    left: 3.25rem;
+  }
+
+  .timeline-row {
+    grid-template-columns: 3.1rem 0.9rem minmax(0, 1fr);
+  }
+
+  .timeline-row small,
+  .timeline-row em {
+    grid-column: 3;
+  }
+}

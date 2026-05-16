@@ -44,8 +44,9 @@ export default function ProjectsPage() {
   const [projects, setProjects] = useState<ProjectItem[]>(defaultProjects);
   const [drafts, setDrafts] = useState<ProjectItem[]>(defaultProjects);
   const [secret, setSecret] = useState("");
+  const [manageMode, setManageMode] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [status, setStatus] = useState("导入管理员密钥后，可以添加、编辑、删除项目并保存到线上。");
+  const [status, setStatus] = useState("点击右上角编辑后，可以添加、编辑、删除项目。保存到线上前需要导入管理员密钥。");
 
   const editingProject = useMemo(() => drafts.find((item) => item.id === editingId) ?? null, [drafts, editingId]);
 
@@ -65,6 +66,13 @@ export default function ProjectsPage() {
         setDrafts(defaultProjects);
       });
   }, []);
+
+  function enterManageMode() {
+    setDrafts(projects);
+    setManageMode(true);
+    setEditingId(null);
+    setStatus(secret ? "已导入密钥，可以编辑项目并保存到线上。" : "编辑模式已打开。请先导入管理员密钥文件，再保存到线上。");
+  }
 
   function handleSecretImport(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -89,12 +97,14 @@ export default function ProjectsPage() {
   }
 
   function startEdit(id: string) {
+    setManageMode(true);
     setEditingId(id);
     setStatus(secret ? "正在编辑项目。修改后点保存到线上。" : "你可以先编辑预览；保存到线上前需要导入管理员密钥文件。");
   }
 
   function addProject() {
     const next = makeProject();
+    setManageMode(true);
     setDrafts((old) => [next, ...old]);
     setEditingId(next.id);
     setStatus(secret ? "已添加一个新项目，修改后保存到线上。" : "已添加本地草稿；保存到线上前需要导入管理员密钥文件。");
@@ -110,6 +120,7 @@ export default function ProjectsPage() {
   function cancelChanges() {
     setDrafts(projects);
     setEditingId(null);
+    setManageMode(false);
     setStatus("已取消未保存的项目修改。");
   }
 
@@ -139,20 +150,26 @@ export default function ProjectsPage() {
     setProjects(savedProjects);
     setDrafts(savedProjects);
     setEditingId(null);
+    setManageMode(false);
     setStatus("已保存到线上。刷新 /projects 后，所有访客都会看到新项目列表。");
   }
 
-  const visibleProjects = drafts;
+  const visibleProjects = manageMode ? drafts : projects;
 
   return (
     <main className="sub-page min-h-screen px-5 pb-16 pt-28 text-slate-700 sm:px-8 lg:px-12">
-      <SiteNav />
+      <SiteNav showEdit={false} />
       <input ref={secretInputRef} type="file" accept=".txt,.json,.env,.key,text/plain,application/json" className="hidden" onChange={handleSecretImport} />
-      <div className="project-admin-actions">
-        <button type="button" className="write-small-button" onClick={cancelChanges}>取消</button>
-        <button type="button" className="write-small-button" onClick={addProject}>添加</button>
-        <button type="button" className="write-tool-button primary" onClick={() => secretInputRef.current?.click()}>导入密钥</button>
-      </div>
+
+      {manageMode ? (
+        <div className="project-admin-actions">
+          <button type="button" className="write-small-button" onClick={cancelChanges}>取消</button>
+          <button type="button" className="write-small-button" onClick={addProject}>添加</button>
+          <button type="button" className="write-tool-button primary" onClick={() => secretInputRef.current?.click()}>{secret ? "重新导入密钥" : "导入密钥"}</button>
+        </div>
+      ) : (
+        <button type="button" className="floating-edit" onClick={enterManageMode}>编辑</button>
+      )}
 
       <section className="mx-auto max-w-6xl">
         <div className="sub-heading">
@@ -162,12 +179,14 @@ export default function ProjectsPage() {
         </div>
 
         <div className="mt-10 grid gap-6 lg:grid-cols-2">
-          {visibleProjects.map((project) => (
-            <article key={project.id} className="sub-card project-list-card glass-panel project-edit-card">
-              <div className="project-card-actions">
-                <button type="button" onClick={() => startEdit(project.id)}>编辑</button>
-                <button type="button" className="danger" onClick={() => deleteProject(project.id)}>删除</button>
-              </div>
+          {visibleProjects.map((project, index) => (
+            <article key={project.id} className={`sub-card project-list-card glass-panel project-view-card ${manageMode ? "project-edit-card" : ""} reveal-card`} style={{ animationDelay: `${index * 70}ms` }}>
+              {manageMode ? (
+                <div className="project-card-actions">
+                  <button type="button" onClick={() => startEdit(project.id)}>编辑</button>
+                  <button type="button" className="danger" onClick={() => deleteProject(project.id)}>删除</button>
+                </div>
+              ) : null}
               <Image src="/avatar.webp" alt="" width={78} height={78} className="post-cover object-cover" />
               <div>
                 <div className="flex flex-wrap items-center gap-3">
@@ -185,7 +204,7 @@ export default function ProjectsPage() {
           ))}
         </div>
 
-        {editingProject ? (
+        {manageMode && editingProject ? (
           <section className="project-editor-panel glass-panel mt-8 p-6 sm:p-8">
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
               <div>
@@ -209,9 +228,11 @@ export default function ProjectsPage() {
           </section>
         ) : null}
 
-        <p className="project-status mt-6 rounded-3xl bg-white/40 p-4 text-sm leading-7 text-slate-500">
-          {secret ? "已导入密钥：可以保存项目修改。" : "未导入密钥：可以本地编辑预览，但不能保存到线上。"} {status}
-        </p>
+        {manageMode ? (
+          <p className="project-status mt-6 rounded-3xl bg-white/40 p-4 text-sm leading-7 text-slate-500">
+            {secret ? "已导入密钥：可以保存项目修改。" : "未导入密钥：可以本地编辑预览，但不能保存到线上。"} {status}
+          </p>
+        ) : null}
       </section>
     </main>
   );
