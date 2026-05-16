@@ -30,8 +30,8 @@ const copy = {
     project: "我的项目",
     projectTitle: "yzy 天气网页",
     projectDesc: "一个独立的气象网页项目，收藏天气信息与可视化灵感。",
-    projectButton: "打开天气网页",
-    wikiButton: "查看 GitHub",
+    projectButton: "天气网页",
+    wikiButton: "GitHub",
     music: "梦幻诛仙 · 张碧晨",
     friends: "友链 / Blogroll",
     interaction: "互动角落",
@@ -65,8 +65,8 @@ const copy = {
     project: "My Project",
     projectTitle: "yzy Weather Page",
     projectDesc: "A small weather project for forecasts, meteorology notes, and visual ideas.",
-    projectButton: "Open Weather Page",
-    wikiButton: "View GitHub",
+    projectButton: "Website",
+    wikiButton: "GitHub",
     music: "Dream Zhu Xian · Diamond Zhang",
     friends: "Blogroll / Links",
     interaction: "Interaction Corner",
@@ -114,6 +114,73 @@ const weatherUrl = "https://libai202505-prog.github.io/weather-websites-of-y/";
 const githubUrl = "https://github.com/libai202505-prog";
 const weatherGithubUrl = "https://github.com/libai202505-prog/weather-websites-of-y";
 const initialLikeCount = 0;
+
+function SidebarIcon({ index }: { index: number }) {
+  const common = {
+    viewBox: "0 0 32 32",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 2.1,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+    className: "nav-icon-svg"
+  };
+
+  if (index === 0) {
+    return (
+      <svg {...common}>
+        <path d="M9 6.5h12.5a2.5 2.5 0 0 1 2.5 2.5v17.5H10.5A3.5 3.5 0 0 1 7 23V9a2.5 2.5 0 0 1 2-2.45Z" />
+        <path d="M11 6.5v20" />
+        <path d="M15 12h5.5" />
+        <path d="M15 17h6.5" />
+        <path d="M22 6.5v6l-2.1-1.25L18 12.5v-6" />
+      </svg>
+    );
+  }
+
+  if (index === 1) {
+    return (
+      <svg {...common}>
+        <path d="M8 8h5v5H8z" />
+        <path d="M19 8h5v5h-5z" />
+        <path d="M8 19h5v5H8z" />
+        <path d="M19 19h5v5h-5z" />
+        <path d="M16 5.5v4" />
+        <path d="M16 22.5v4" />
+        <path d="M5.5 16h4" />
+        <path d="M22.5 16h4" />
+      </svg>
+    );
+  }
+
+  if (index === 2) {
+    return (
+      <svg {...common}>
+        <circle cx="16" cy="16" r="10.5" />
+        <path d="M11.5 18.2c1.4 2 3 3 4.6 3s3.1-1 4.4-3" />
+        <path d="M12.5 13.5h.01" />
+        <path d="M19.5 13.5h.01" />
+      </svg>
+    );
+  }
+
+  if (index === 3) {
+    return (
+      <svg {...common}>
+        <path d="m16 5.8 3.1 6.35 7 1.02-5.05 4.9 1.2 6.92L16 21.7l-6.25 3.29 1.2-6.92-5.05-4.9 7-1.02L16 5.8Z" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg {...common}>
+      <circle cx="16" cy="16" r="10.5" />
+      <path d="M5.5 16h21" />
+      <path d="M16 5.5c3 3.2 4.4 6.7 4.4 10.5S19 23.3 16 26.5" />
+      <path d="M16 5.5c-3 3.2-4.4 6.7-4.4 10.5S13 23.3 16 26.5" />
+    </svg>
+  );
+}
 
 function pad(value: number) {
   return String(value).padStart(2, "0");
@@ -380,9 +447,32 @@ function InteractionCard({ lang }: { lang: Lang }) {
   );
 }
 
+
+function removeLive2DWidget() {
+  const selectors = ["#waifu", "#live2d", "#live2dcanvas", ".live2d-widget-container", ".waifu"];
+  selectors.forEach((selector) => {
+    document.querySelectorAll(selector).forEach((node) => node.remove());
+  });
+}
+
+function loadLive2DWidget() {
+  if (typeof window === "undefined") return;
+  if (document.getElementById("yzy-live2d-script")) {
+    removeLive2DWidget();
+  }
+
+  const script = document.createElement("script");
+  script.id = "yzy-live2d-script";
+  script.src = "https://cdn.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/autoload.js";
+  script.async = true;
+  script.dataset.loadedBy = "yzy-ovo";
+  document.body.appendChild(script);
+}
+
 export default function Home() {
   const [lang, setLang] = useState<Lang>("zh");
   const [now, setNow] = useState<Date | null>(null);
+  const [live2dVisible, setLive2dVisible] = useState(false);
   const t = copy[lang];
   const greeting = getGreeting(now, lang);
 
@@ -391,6 +481,11 @@ export default function Home() {
     const timer = window.setInterval(() => setNow(new Date()), 1000 * 30);
     return () => window.clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    if (!live2dVisible) return;
+    loadLive2DWidget();
+  }, [live2dVisible]);
 
   const year = useMemo(() => new Date().getFullYear(), []);
 
@@ -417,7 +512,7 @@ export default function Home() {
           <nav className="mt-5 space-y-3">
             {t.nav.map((item, index) => (
               <a key={item} href={navLinks[index]} className={index === 3 ? "nav-pill is-active" : "nav-pill"}>
-                <span className="nav-icon">{["▤", "◇", "○", "★", "◎"][index]}</span>
+                <span className="nav-icon" aria-hidden="true"><SidebarIcon index={index} /></span>
                 <span>{item}</span>
               </a>
             ))}
@@ -445,16 +540,23 @@ export default function Home() {
 
           <div className="grid gap-6 md:grid-cols-[1fr_0.74fr]">
             <article className="greeting-card glass-panel p-6 text-center">
-              <Image src="/avatar.webp" alt="yzy-ovo avatar" width={108} height={108} priority className="avatar-big mx-auto rounded-full object-cover" />
+              <button
+                type="button"
+                className="avatar-live2d-trigger mx-auto block"
+                onClick={() => setLive2dVisible(true)}
+                title={lang === "zh" ? "点击召唤 Live2D 看板娘" : "Click to load Live2D avatar"}
+              >
+                <Image src="/avatar.webp" alt="yzy-ovo avatar" width={108} height={108} priority className="avatar-big rounded-full object-cover" />
+              </button>
               <h2 className="mt-4 text-3xl font-semibold tracking-tight text-slate-700">{greeting}</h2>
               <p className="mx-auto mt-2 max-w-sm text-2xl leading-snug text-slate-700">
                 {lang === "zh" ? (
                   <>
-                    我是 <span className="text-cyan-500">yzy</span>，很高兴遇见你！
+                    我是 <span className="yzy-name text-cyan-500">yzy</span>，很高兴遇见你！
                   </>
                 ) : (
                   <>
-                    I'm <span className="text-cyan-500">yzy</span>, nice to meet you!
+                    I'm <span className="yzy-name text-cyan-500">yzy</span>, nice to meet you!
                   </>
                 )}
               </p>
@@ -470,6 +572,16 @@ export default function Home() {
                 <p className="mt-3 leading-7 text-slate-500">{t.projectDesc}</p>
               </div>
 
+              <div className="mt-6 grid gap-3 sm:grid-cols-2 md:grid-cols-1 xl:grid-cols-2">
+                <a href={weatherUrl} target="_blank" rel="noreferrer" className="project-link primary home-project-link">
+                  <span aria-hidden="true">☁</span>
+                  {t.projectButton}
+                </a>
+                <a href={weatherGithubUrl} target="_blank" rel="noreferrer" className="project-link home-project-link">
+                  <span aria-hidden="true">⌘</span>
+                  {t.wikiButton}
+                </a>
+              </div>
             </article>
           </div>
 
@@ -529,6 +641,21 @@ export default function Home() {
           </article>
         </aside>
       </div>
+
+      {live2dVisible ? (
+        <div className="live2d-hint glass-panel" role="status">
+          <span>{lang === "zh" ? "Live2D 加载中 / 已开启" : "Live2D loading / enabled"}</span>
+          <button
+            type="button"
+            onClick={() => {
+              setLive2dVisible(false);
+              removeLive2DWidget();
+            }}
+          >
+            {lang === "zh" ? "关闭" : "Close"}
+          </button>
+        </div>
+      ) : null}
 
       <footer className="mx-auto mt-8 max-w-7xl pb-4 text-center text-sm text-slate-500">© {year} {t.footer}</footer>
     </main>

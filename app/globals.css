@@ -87,10 +87,10 @@ body::after {
 .nav-pill {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.05rem;
   border-radius: 999px;
-  padding: 0.98rem 1.2rem;
-  color: rgb(100 116 139);
+  padding: 0.9rem 1.15rem;
+  color: rgb(104 120 133);
   transition: transform 180ms ease, background 180ms ease, color 180ms ease, box-shadow 180ms ease;
 }
 
@@ -98,23 +98,41 @@ body::after {
 .nav-pill.is-active {
   transform: translateY(-1px);
   color: rgb(51 65 85);
-  background: rgba(255, 255, 255, 0.86);
+  background: rgba(255, 255, 255, 0.9);
   box-shadow: 0 18px 36px rgba(70, 133, 154, 0.14);
 }
 
 .nav-pill:hover .nav-icon,
 .nav-pill.is-active .nav-icon {
   color: rgb(15 118 110);
-  transform: scale(1.08);
+  transform: scale(1.06);
 }
 
 .nav-icon {
   display: inline-flex;
-  width: 1.8rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
-  color: rgb(45 212 191);
-  transition: color 180ms ease, transform 180ms ease;
+  border-radius: 0.85rem;
+  color: rgb(116 133 145);
+  transition: color 180ms ease, transform 180ms ease, background 180ms ease;
+}
+
+.nav-pill:hover .nav-icon,
+.nav-pill.is-active .nav-icon {
+  background: rgba(45, 212, 191, 0.12);
+}
+
+.nav-icon-svg {
+  width: 1.82rem;
+  height: 1.82rem;
+  stroke: currentColor;
+}
+
+.home-project-link {
+  min-width: 9.6rem;
+  padding-inline: 1.35rem;
 }
 
 .latest-card {
@@ -713,7 +731,7 @@ body::after {
   height: 3rem;
   width: 3rem;
   border-radius: 1rem;
-  color: rgb(100 116 139);
+  color: rgb(104 120 133);
   transition: transform 180ms ease, background 180ms ease, color 180ms ease, box-shadow 180ms ease;
 }
 
@@ -2111,4 +2129,68 @@ button.floating-edit {
   .share-edit-row {
     grid-template-columns: 1fr;
   }
+}
+
+
+.floating-nav-svg {
+  width: 1.75rem;
+  height: 1.75rem;
+  stroke: currentColor;
+}
+
+/* v21: restore home project links and polish icon linework. */
+.home-project-link {
+  min-width: 9.8rem;
+  padding-left: 1.45rem;
+  padding-right: 1.45rem;
+}
+
+.avatar-live2d-trigger {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 999px;
+  padding: 0;
+  transition: transform 180ms ease, filter 180ms ease;
+}
+
+.avatar-live2d-trigger:hover {
+  transform: translateY(-3px) scale(1.02);
+  filter: drop-shadow(0 18px 28px rgba(45, 212, 191, 0.26));
+}
+
+.yzy-name {
+  display: inline-block;
+  font-size: 1.22em;
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: 0.01em;
+}
+
+.live2d-hint {
+  position: fixed;
+  right: 1.2rem;
+  bottom: 1.2rem;
+  z-index: 80;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  border-radius: 999px;
+  padding: 0.65rem 0.8rem 0.65rem 1rem;
+  color: rgb(51 65 85);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.live2d-hint button {
+  border: 1px solid rgba(255, 255, 255, 0.74);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: rgb(15 118 110);
+  font-weight: 800;
+  padding: 0.35rem 0.7rem;
+}
+
+#waifu {
+  z-index: 70 !important;
 }
