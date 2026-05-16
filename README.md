@@ -1,20 +1,73 @@
-# yzy-ovo personal wiki
+# yzy-ovo
 
-A soft blue bilingual personal wiki dashboard built with Next.js, Tailwind CSS, and React.
+A soft blue bilingual personal wiki / dashboard site built with Next.js and Tailwind CSS.
 
-## What changed in this version
+## Update content
 
-- Moved the language switch to the top-right corner.
-- Added a separate `/about` page for personal introduction.
-- Updated nav hover style: white row with deep-green icon.
-- Updated weather project GitHub link to `libai202505-prog/weather-websites-of-y`.
-- Reworked the RedNote icon to a clearer app-style local SVG.
-- Removed the borrowed fake like count and reset the local counter to start from 0.
-- Kept likes/comments as a front-end local demo. For shared visitor-wide data, connect a backend service such as Upstash Redis, Supabase, or Giscus.
+Most homepage text and links are in:
 
-## Local dev
+```txt
+app/page.tsx
+```
 
-```bash
-npm install
-npm run dev
+The about page is in:
+
+```txt
+app/about/page.tsx
+```
+
+## Free backend with Upstash Redis
+
+This version includes two backend API routes:
+
+```txt
+app/api/likes/route.ts
+app/api/comments/route.ts
+```
+
+They store:
+
+- total site likes
+- public comments visible to all visitors
+
+If Upstash environment variables are missing, the site will still work and fall back to local browser mode.
+
+### Setup on Upstash
+
+1. Create a free Redis database on Upstash.
+2. Open the database details page.
+3. Copy these two values from the REST API section:
+   - `UPSTASH_REDIS_REST_URL`
+   - `UPSTASH_REDIS_REST_TOKEN`
+
+### Setup on Vercel
+
+Go to:
+
+```txt
+Vercel project -> Settings -> Environment Variables
+```
+
+Add:
+
+```txt
+UPSTASH_REDIS_REST_URL
+UPSTASH_REDIS_REST_TOKEN
+```
+
+Select Production, Preview, and Development if Vercel offers those checkboxes. Then redeploy the site.
+
+## Public comments vs private messages
+
+This version uses public comments. That is better for a personal site because visitors can interact with the page and see the conversation.
+
+Private or sensitive messages should not be posted in the comment box. Use the Email button instead.
+
+## Reset likes or comments
+
+In Upstash Console, you can delete these keys if you want to reset data:
+
+```txt
+yzy-ovo:likes
+yzy-ovo:comments
 ```

@@ -10,7 +10,7 @@ const aboutCopy = {
   zh: {
     switchText: "English",
     title: "YZY-OVO",
-    subtitle: "もしもし",
+    subtitle: "",
     introTitle: "Hi! ✨ I'm yzy",
     bullets: [
       "南方人，INFP-T，在读研究生。",
@@ -31,7 +31,7 @@ const aboutCopy = {
   en: {
     switchText: "中文",
     title: "YZY-OVO",
-    subtitle: "moshi moshi",
+    subtitle: "",
     introTitle: "Hi! ✨ I'm yzy",
     bullets: [
       "From southern China, INFP-T, currently a graduate student.",
@@ -72,7 +72,7 @@ export default function AboutPage() {
         <div className="about-heading text-center">
           <Image src="/avatar.webp" alt="yzy-ovo avatar" width={86} height={86} className="avatar-ring mx-auto rounded-full object-cover" priority />
           <h1 className="mt-5 text-5xl font-black tracking-[0.08em] text-slate-700 sm:text-6xl">{t.title}</h1>
-          <p className="mt-4 text-xl tracking-[0.18em] text-slate-400">{t.subtitle}</p>
+          {t.subtitle ? <p className="mt-4 text-xl tracking-[0.18em] text-slate-400">{t.subtitle}</p> : null}
         </div>
 
         <article className="about-panel glass-panel mt-14 p-8 sm:p-10 lg:p-12">

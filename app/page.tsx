@@ -38,11 +38,15 @@ const copy = {
     like: "喜欢这个小站",
     liked: "已点赞",
     totalLikes: "累计总赞数",
-    commentTitle: "留言",
+    backendMode: "全站累计",
+    localMode: "本地模式",
+    syncing: "同步中",
+    commentTitle: "公开留言",
     commentName: "昵称",
-    commentText: "写点什么吧...",
-    commentButton: "发布留言",
-    localHint: "当前版本已去掉 borrowed 初始数字；本地会累计更新。若要所有访客共享总赞数和评论，需要接入免费数据库或评论服务。",
+    commentText: "写下想公开显示的留言，建议不要填写隐私信息...",
+    commentButton: "发布公开留言",
+    publicCommentHint: "建议做成公开留言：更适合个人站互动，所有访客都能看到；私密内容请通过 Email 联系我。",
+    localHint: "点赞和公开留言共用 Upstash Redis 免费后端；没有配置环境变量时会自动退回本地模式。",
     buttons: ["Github", "Bilibili", "小红书", "Email"],
     footer: "Made with Next.js · yzy-ovo"
   },
@@ -71,11 +75,15 @@ const copy = {
     like: "Like this site",
     liked: "Liked",
     totalLikes: "Total likes",
-    commentTitle: "Comments",
+    backendMode: "Shared counter",
+    localMode: "Local mode",
+    syncing: "Syncing",
+    commentTitle: "Public Comments",
     commentName: "Name",
-    commentText: "Leave a message...",
-    commentButton: "Post comment",
-    localHint: "No borrowed starting number is used now. This counter updates locally. A shared counter and public comments need a free database or comment service.",
+    commentText: "Leave a public message. Please avoid private information...",
+    commentButton: "Post public comment",
+    publicCommentHint: "Public comments are best for a personal site: every visitor can read them. For private notes, please use Email instead.",
+    localHint: "Likes and public comments share the free Upstash Redis backend. Without environment variables, the site falls back to local mode.",
     buttons: ["Github", "Bilibili", "RedNote", "Email"],
     footer: "Made with Next.js · yzy-ovo"
   }
@@ -170,44 +178,126 @@ function InteractionCard({ lang }: { lang: Lang }) {
   const t = copy[lang];
   const [likeCount, setLikeCount] = useState(initialLikeCount);
   const [liked, setLiked] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(true);
+  const [useBackend, setUseBackend] = useState(false);
   const [name, setName] = useState("");
   const [text, setText] = useState("");
   const [comments, setComments] = useState<CommentItem[]>([]);
+  const [commentsSyncing, setCommentsSyncing] = useState(true);
+  const [useCommentBackend, setUseCommentBackend] = useState(false);
 
-  useEffect(() => {
-    const savedLikes = window.localStorage.getItem("yzy-ovo-like-count");
-    const savedLiked = window.localStorage.getItem("yzy-ovo-liked") === "true";
+  function readLocalComments() {
     const savedComments = window.localStorage.getItem("yzy-ovo-comments");
+    if (!savedComments) return [];
 
-    if (savedLikes) setLikeCount(Number(savedLikes));
-    setLiked(savedLiked);
-    if (savedComments) {
-      try {
-        setComments(JSON.parse(savedComments) as CommentItem[]);
-      } catch {
-        setComments([]);
-      }
+    try {
+      return JSON.parse(savedComments) as CommentItem[];
+    } catch {
+      return [];
     }
-  }, []);
-
-  function handleLike() {
-    if (liked) return;
-    const next = likeCount + 1;
-    setLiked(true);
-    setLikeCount(next);
-    window.localStorage.setItem("yzy-ovo-liked", "true");
-    window.localStorage.setItem("yzy-ovo-like-count", String(next));
   }
 
-  function handleComment(event: FormEvent<HTMLFormElement>) {
+  useEffect(() => {
+    const savedLiked = window.localStorage.getItem("yzy-ovo-liked") === "true";
+    setLiked(savedLiked);
+
+    let cancelled = false;
+
+    async function loadLikes() {
+      setIsSyncing(true);
+      try {
+        const response = await fetch("/api/likes", { cache: "no-store" });
+        if (!response.ok) throw new Error("Failed to load likes");
+        const data = (await response.json()) as { count?: number; connected?: boolean };
+        if (cancelled) return;
+        if (data.connected) {
+          setLikeCount(Number(data.count ?? 0));
+          setUseBackend(true);
+        } else {
+          const savedLikes = window.localStorage.getItem("yzy-ovo-like-count");
+          setLikeCount(savedLikes ? Number(savedLikes) : initialLikeCount);
+          setUseBackend(false);
+        }
+      } catch {
+        if (cancelled) return;
+        const savedLikes = window.localStorage.getItem("yzy-ovo-like-count");
+        setLikeCount(savedLikes ? Number(savedLikes) : initialLikeCount);
+        setUseBackend(false);
+      } finally {
+        if (!cancelled) setIsSyncing(false);
+      }
+    }
+
+    async function loadComments() {
+      setCommentsSyncing(true);
+      try {
+        const response = await fetch("/api/comments", { cache: "no-store" });
+        if (!response.ok) throw new Error("Failed to load comments");
+        const data = (await response.json()) as { comments?: CommentItem[]; connected?: boolean };
+        if (cancelled) return;
+        if (data.connected) {
+          setComments(data.comments ?? []);
+          setUseCommentBackend(true);
+        } else {
+          setComments(readLocalComments());
+          setUseCommentBackend(false);
+        }
+      } catch {
+        if (cancelled) return;
+        setComments(readLocalComments());
+        setUseCommentBackend(false);
+      } finally {
+        if (!cancelled) setCommentsSyncing(false);
+      }
+    }
+
+    loadLikes();
+    loadComments();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  async function handleLike() {
+    if (liked || isSyncing) return;
+
+    setLiked(true);
+    window.localStorage.setItem("yzy-ovo-liked", "true");
+
+    const optimisticCount = likeCount + 1;
+    setLikeCount(optimisticCount);
+    setIsSyncing(true);
+
+    try {
+      const response = await fetch("/api/likes", { method: "POST" });
+      if (!response.ok) throw new Error("Failed to save like");
+      const data = (await response.json()) as { count?: number; connected?: boolean };
+      if (data.connected) {
+        setLikeCount(Number(data.count ?? optimisticCount));
+        setUseBackend(true);
+      } else {
+        setLikeCount(optimisticCount);
+        setUseBackend(false);
+        window.localStorage.setItem("yzy-ovo-like-count", String(optimisticCount));
+      }
+    } catch {
+      setUseBackend(false);
+      window.localStorage.setItem("yzy-ovo-like-count", String(optimisticCount));
+    } finally {
+      setIsSyncing(false);
+    }
+  }
+
+  async function handleComment(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const cleanText = text.trim();
-    if (!cleanText) return;
+    if (!cleanText || commentsSyncing) return;
 
-    const nextComment: CommentItem = {
+    const draftComment: CommentItem = {
       id: `${Date.now()}`,
-      name: name.trim() || "yzy guest",
-      text: cleanText,
+      name: (name.trim() || "yzy guest").slice(0, 24),
+      text: cleanText.slice(0, 300),
       createdAt: new Date().toLocaleString(lang === "zh" ? "zh-CN" : "en-US", {
         month: "short",
         day: "numeric",
@@ -215,10 +305,34 @@ function InteractionCard({ lang }: { lang: Lang }) {
         minute: "2-digit"
       })
     };
-    const nextComments = [nextComment, ...comments].slice(0, 5);
-    setComments(nextComments);
+
     setText("");
+    setCommentsSyncing(true);
+
+    if (useCommentBackend) {
+      try {
+        const response = await fetch("/api/comments", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: draftComment.name, text: draftComment.text })
+        });
+        if (!response.ok) throw new Error("Failed to save comment");
+        const data = (await response.json()) as { comments?: CommentItem[]; comment?: CommentItem; connected?: boolean };
+        if (data.connected) {
+          setUseCommentBackend(true);
+          setComments(data.comments ?? (data.comment ? [data.comment, ...comments].slice(0, 10) : comments));
+          setCommentsSyncing(false);
+          return;
+        }
+      } catch {
+        setUseCommentBackend(false);
+      }
+    }
+
+    const nextComments = [draftComment, ...comments].slice(0, 10);
+    setComments(nextComments);
     window.localStorage.setItem("yzy-ovo-comments", JSON.stringify(nextComments));
+    setCommentsSyncing(false);
   }
 
   return (
@@ -228,21 +342,33 @@ function InteractionCard({ lang }: { lang: Lang }) {
           <p className="text-sm font-medium uppercase tracking-[0.22em] text-cyan-500">Like & Comment</p>
           <h2 className="mt-2 text-2xl font-semibold text-slate-700">{t.interaction}</h2>
         </div>
-        <button type="button" onClick={handleLike} className={liked ? "like-button liked" : "like-button"}>
+        <button type="button" onClick={handleLike} disabled={liked || isSyncing} className={liked ? "like-button liked" : "like-button"}>
           <span>{liked ? "♥" : "♡"}</span>
           {liked ? t.liked : t.like}
         </button>
       </div>
 
       <div className="mt-4 rounded-3xl bg-white/50 p-4 text-sm text-slate-500">
-        {t.totalLikes}: <span className="font-semibold text-cyan-600">{likeCount.toLocaleString()}</span>
+        <div className="flex items-center justify-between gap-3">
+          <span>{t.totalLikes}</span>
+          <span className="like-mode-pill">{isSyncing ? t.syncing : useBackend ? t.backendMode : t.localMode}</span>
+        </div>
+        <div className="mt-2 text-3xl font-bold tracking-tight text-cyan-600">{likeCount.toLocaleString()}</div>
       </div>
 
-      <form onSubmit={handleComment} className="mt-5 space-y-3">
-        <input value={name} onChange={(event) => setName(event.target.value)} className="comment-input" placeholder={t.commentName} />
-        <textarea value={text} onChange={(event) => setText(event.target.value)} className="comment-input min-h-24 resize-none" placeholder={t.commentText} />
-        <button type="submit" className="comment-submit">{t.commentButton}</button>
-      </form>
+      <section className="mt-5 rounded-3xl bg-white/45 p-4">
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="text-lg font-bold text-slate-700">{t.commentTitle}</h3>
+          <span className="like-mode-pill">{commentsSyncing ? t.syncing : useCommentBackend ? t.backendMode : t.localMode}</span>
+        </div>
+        <p className="mt-2 text-xs leading-5 text-slate-400">{t.publicCommentHint}</p>
+
+        <form onSubmit={handleComment} className="mt-4 space-y-3">
+          <input value={name} onChange={(event) => setName(event.target.value)} className="comment-input" placeholder={t.commentName} maxLength={24} />
+          <textarea value={text} onChange={(event) => setText(event.target.value)} className="comment-input min-h-24 resize-none" placeholder={t.commentText} maxLength={300} />
+          <button type="submit" disabled={commentsSyncing} className="comment-submit">{commentsSyncing ? t.syncing : t.commentButton}</button>
+        </form>
+      </section>
 
       <div className="mt-5 space-y-3">
         {comments.map((comment) => (
@@ -251,7 +377,7 @@ function InteractionCard({ lang }: { lang: Lang }) {
               <span className="font-semibold text-slate-700">{comment.name}</span>
               <span className="text-xs text-slate-400">{comment.createdAt}</span>
             </div>
-            <p className="mt-1 text-sm leading-6 text-slate-500">{comment.text}</p>
+            <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-6 text-slate-500">{comment.text}</p>
           </div>
         ))}
       </div>
