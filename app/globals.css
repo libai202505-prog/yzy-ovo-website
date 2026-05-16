@@ -1633,3 +1633,96 @@ button.floating-edit {
     grid-column: 3;
   }
 }
+
+/* v15: project cards edit inline, like the reference site. */
+.project-link {
+  min-width: 7.2rem;
+  padding-left: 1.3rem;
+  padding-right: 1.3rem;
+}
+
+.project-done-button {
+  color: rgb(15 118 110);
+}
+
+.project-inline-editing {
+  align-items: flex-start;
+  padding-top: 2.35rem;
+}
+
+.project-inline-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.7rem;
+  padding-right: 5.5rem;
+}
+
+.project-inline-input {
+  min-height: 2.4rem;
+  width: 100%;
+  border-radius: 0.55rem;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(255, 255, 255, 0.34);
+  padding: 0.45rem 0.7rem;
+  color: rgb(51 65 85);
+  font-size: 0.95rem;
+  font-weight: 600;
+  outline: none;
+  transition: border 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.project-inline-input:focus {
+  border-color: rgba(20, 184, 166, 0.48);
+  background: rgba(255, 255, 255, 0.62);
+  box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.16);
+}
+
+.project-title-input {
+  flex: 1 1 13rem;
+  max-width: 18rem;
+  font-size: 1.25rem;
+  font-weight: 900;
+}
+
+.project-year-input {
+  width: 6.5rem;
+  color: rgb(100 116 139);
+}
+
+.project-tag-input {
+  margin-top: 0.7rem;
+  max-width: 24rem;
+}
+
+.project-inline-summary {
+  margin-top: 1rem;
+  min-height: 5.3rem;
+  resize: vertical;
+  line-height: 1.8;
+}
+
+.project-card-actions button.done {
+  color: #2dd4bf;
+}
+
+.project-card-actions button.done:hover {
+  color: #0f766e;
+}
+
+@media (max-width: 640px) {
+  .project-inline-title-row {
+    padding-right: 0;
+  }
+
+  .project-title-input,
+  .project-year-input,
+  .project-tag-input {
+    max-width: none;
+    width: 100%;
+  }
+
+  .project-link {
+    min-width: 6.4rem;
+  }
+}
