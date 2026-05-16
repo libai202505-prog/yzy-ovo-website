@@ -16,6 +16,18 @@ The about page is in:
 app/about/page.tsx
 ```
 
+The writing editor page is in:
+
+```txt
+app/write/page.tsx
+```
+
+The top banner background image is:
+
+```txt
+public/hero-bg.webp
+```
+
 ## Free backend with Upstash Redis
 
 This version includes two backend API routes:
@@ -29,8 +41,6 @@ They store:
 
 - total site likes
 - public comments visible to all visitors
-
-If Upstash environment variables are missing, the site will still work and fall back to local browser mode.
 
 ### Setup on Upstash
 
@@ -55,13 +65,19 @@ UPSTASH_REDIS_REST_URL
 UPSTASH_REDIS_REST_TOKEN
 ```
 
-Select Production, Preview, and Development if Vercel offers those checkboxes. Then redeploy the site.
+Select `Production` and `Preview`. `Development` is not required for the live website.
 
-## Public comments vs private messages
+Then redeploy the site.
 
-This version uses public comments. That is better for a personal site because visitors can interact with the page and see the conversation.
+## Writing articles
 
-Private or sensitive messages should not be posted in the comment box. Use the Email button instead.
+The homepage write button opens:
+
+```txt
+/write
+```
+
+This page lets you draft, preview, import Markdown, add cover/meta info, copy Markdown, and download a `.md` file. To publish permanently, add the generated Markdown file to your GitHub repository.
 
 ## Reset likes or comments
 

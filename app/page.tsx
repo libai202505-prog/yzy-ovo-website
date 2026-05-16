@@ -45,8 +45,6 @@ const copy = {
     commentName: "昵称",
     commentText: "写下想公开显示的留言，建议不要填写隐私信息...",
     commentButton: "发布公开留言",
-    publicCommentHint: "建议做成公开留言：更适合个人站互动，所有访客都能看到；私密内容请通过 Email 联系我。",
-    localHint: "点赞和公开留言共用 Upstash Redis 免费后端；没有配置环境变量时会自动退回本地模式。",
     buttons: ["Github", "Bilibili", "小红书", "Email"],
     footer: "Made with Next.js · yzy-ovo"
   },
@@ -82,8 +80,6 @@ const copy = {
     commentName: "Name",
     commentText: "Leave a public message. Please avoid private information...",
     commentButton: "Post public comment",
-    publicCommentHint: "Public comments are best for a personal site: every visitor can read them. For private notes, please use Email instead.",
-    localHint: "Likes and public comments share the free Upstash Redis backend. Without environment variables, the site falls back to local mode.",
     buttons: ["Github", "Bilibili", "RedNote", "Email"],
     footer: "Made with Next.js · yzy-ovo"
   }
@@ -361,8 +357,6 @@ function InteractionCard({ lang }: { lang: Lang }) {
           <h3 className="text-lg font-bold text-slate-700">{t.commentTitle}</h3>
           <span className="like-mode-pill">{commentsSyncing ? t.syncing : useCommentBackend ? t.backendMode : t.localMode}</span>
         </div>
-        <p className="mt-2 text-xs leading-5 text-slate-400">{t.publicCommentHint}</p>
-
         <form onSubmit={handleComment} className="mt-4 space-y-3">
           <input value={name} onChange={(event) => setName(event.target.value)} className="comment-input" placeholder={t.commentName} maxLength={24} />
           <textarea value={text} onChange={(event) => setText(event.target.value)} className="comment-input min-h-24 resize-none" placeholder={t.commentText} maxLength={300} />
@@ -382,7 +376,6 @@ function InteractionCard({ lang }: { lang: Lang }) {
         ))}
       </div>
 
-      <p className="mt-4 text-xs leading-5 text-slate-400">{t.localHint}</p>
     </article>
   );
 }
@@ -445,7 +438,7 @@ export default function Home() {
         <section className="center-column space-y-6">
           <div className="hero-window glass-panel relative overflow-hidden p-4">
             <div className="hero-art relative h-56 rounded-[2rem] sm:h-72">
-              <Image src="/avatar.webp" alt="soft blue illustration" fill sizes="(max-width: 1024px) 100vw, 560px" priority className="object-cover opacity-90" />
+              <Image src="/hero-bg.webp" alt="spring field illustration" fill sizes="(max-width: 1024px) 100vw, 560px" priority className="object-cover hero-bg-image" />
               <div className="hero-shine" />
             </div>
           </div>
@@ -509,7 +502,7 @@ export default function Home() {
 
         <aside className="right-column space-y-6">
           <div className="flex items-center gap-5 pr-28 lg:pr-0">
-            <a href="/about" className="write-button">
+            <a href="/write" className="write-button">
               <span>✎</span>
               {t.write}
             </a>
