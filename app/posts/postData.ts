@@ -36,7 +36,7 @@ export function normalizePosts(value: unknown): PostItem[] {
   if (!Array.isArray(value)) return defaultPosts;
 
   const normalized = value
-    .map((item, index) => {
+    .map((item, index): PostItem | null => {
       if (typeof item !== "object" || item === null) return null;
       const source = item as Partial<PostItem>;
       const title = cleanString(source.title);
@@ -48,7 +48,7 @@ export function normalizePosts(value: unknown): PostItem[] {
       const category = cleanString(source.category, "未分类");
       return { id, title, date, tag, href, category, read: Boolean(source.read) };
     })
-    .filter((item): item is PostItem => Boolean(item));
+    .filter((item): item is PostItem => item !== null);
 
   return normalized.length ? normalized : defaultPosts;
 }
