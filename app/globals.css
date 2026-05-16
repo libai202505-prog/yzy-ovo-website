@@ -97,9 +97,14 @@ body::after {
 .nav-pill:hover,
 .nav-pill.is-active {
   transform: translateY(-1px);
-  color: rgb(51 65 85);
-  background: rgba(255, 255, 255, 0.7);
-  box-shadow: 0 18px 36px rgba(96, 145, 165, 0.14);
+  color: white;
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.92), rgba(15, 118, 110, 0.92));
+  box-shadow: 0 18px 36px rgba(15, 118, 110, 0.22);
+}
+
+.nav-pill:hover .nav-icon,
+.nav-pill.is-active .nav-icon {
+  color: white;
 }
 
 .nav-icon {
@@ -108,6 +113,51 @@ body::after {
   justify-content: center;
   font-size: 1.25rem;
   color: rgb(45 212 191);
+}
+
+.latest-card {
+  overflow: hidden;
+}
+
+.latest-row {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  align-items: center;
+  gap: 0.85rem;
+  border-radius: 1.4rem;
+  transition: background 180ms ease, transform 180ms ease;
+}
+
+.latest-row:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.latest-thumb {
+  height: 58px;
+  width: 58px;
+  flex: none;
+}
+
+.latest-title {
+  display: -webkit-box;
+  overflow: hidden;
+  color: rgb(51 65 85);
+  font-weight: 800;
+  line-height: 1.32;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.latest-desc {
+  display: -webkit-box;
+  margin-top: 0.25rem;
+  overflow: hidden;
+  color: rgb(100 116 139);
+  font-size: 0.875rem;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .hero-art {
@@ -149,6 +199,12 @@ body::after {
   box-shadow: 0 18px 42px rgba(70, 133, 154, 0.16);
 }
 
+.social-icon-img {
+  height: 1.55rem;
+  width: 1.55rem;
+  border-radius: 0.45rem;
+}
+
 .social-button {
   min-height: 3.2rem;
   border-radius: 1rem;
@@ -172,6 +228,31 @@ body::after {
   padding: 0 1.2rem;
   font-weight: 700;
   color: rgb(8 145 178);
+}
+
+.project-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  min-height: 3.1rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.74);
+  background: rgba(255, 255, 255, 0.56);
+  color: rgb(71 85 105);
+  font-weight: 700;
+  transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
+}
+
+.project-link:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 18px 42px rgba(70, 133, 154, 0.16);
+}
+
+.project-link.primary {
+  background: linear-gradient(135deg, rgba(48, 213, 200, 0.92), rgba(69, 193, 233, 0.92));
+  color: white;
 }
 
 .write-button {
@@ -240,9 +321,92 @@ body::after {
   font-weight: 600;
 }
 
+.interaction-card {
+  border-radius: 2.2rem;
+}
+
+.like-button,
+.comment-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.74);
+  background: rgba(255, 255, 255, 0.65);
+  color: rgb(15 118 110);
+  font-weight: 800;
+  transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
+}
+
+.like-button {
+  min-height: 2.8rem;
+  padding: 0 1rem;
+  white-space: nowrap;
+}
+
+.like-button:hover,
+.comment-submit:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.92), rgba(15, 118, 110, 0.92));
+  color: white;
+  box-shadow: 0 18px 36px rgba(15, 118, 110, 0.18);
+}
+
+.like-button.liked {
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.92), rgba(15, 118, 110, 0.92));
+  color: white;
+}
+
+.comment-input {
+  width: 100%;
+  border-radius: 1.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.58);
+  padding: 0.85rem 1rem;
+  color: rgb(51 65 85);
+  outline: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.comment-input:focus {
+  border-color: rgba(45, 212, 191, 0.85);
+  box-shadow: 0 0 0 4px rgba(45, 212, 191, 0.15);
+}
+
+.comment-submit {
+  min-height: 2.8rem;
+  padding: 0 1.2rem;
+}
+
+.comment-item {
+  border-radius: 1.2rem;
+  background: rgba(255, 255, 255, 0.48);
+  padding: 0.95rem 1rem;
+}
+
 @media (max-width: 1023px) {
   .sidebar {
     position: relative;
     height: auto;
+  }
+}
+
+@media (max-width: 420px) {
+  .latest-row {
+    grid-template-columns: 48px minmax(0, 1fr);
+  }
+
+  .latest-thumb {
+    height: 48px;
+    width: 48px;
+  }
+
+  .latest-title {
+    font-size: 0.95rem;
+  }
+
+  .latest-desc {
+    font-size: 0.82rem;
   }
 }

@@ -1,9 +1,16 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 
 type Lang = "zh" | "en";
+
+type CommentItem = {
+  id: string;
+  name: string;
+  text: string;
+  createdAt: string;
+};
 
 const copy = {
   zh: {
@@ -11,19 +18,35 @@ const copy = {
     menuTitle: "GENERAL",
     nav: ["近期文章", "我的项目", "关于网站", "推荐分享", "优秀博客"],
     write: "写文章",
-    greeting: "Good Morning",
+    greetings: {
+      dawn: "夜深啦",
+      morning: "早上好",
+      afternoon: "下午好",
+      evening: "晚上好"
+    },
     greetingLine: "我是 yzy，很高兴遇见你！",
     latest: "最新文章",
     latestTitle: "建站记录 & 蓝色主题实验",
     latestDesc: "把这个空间做成自己的双语个人 Wiki、博客和项目展示页。",
     dateLabel: "今天",
-    project: "随机推荐",
-    projectTitle: "yzy-ovo Wiki",
-    projectDesc: "收藏灵感、笔记、项目和喜欢的链接。",
+    project: "我的项目",
+    projectTitle: "yzy 天气网页",
+    projectDesc: "一个独立的气象网页项目，收藏天气信息与可视化灵感。",
+    projectButton: "打开天气网页",
+    wikiButton: "查看 GitHub",
     music: "梦幻诛仙 · 张碧晨",
     friends: "友链 / Blogroll",
     about: "关于这里",
     aboutText: "一个浅蓝色渐变的小空间，记录生活碎片、学习笔记、作品和灵感。风格参考了个人 Wiki 的布局，但内容、配色和组件都重新设计为 yzy-ovo。",
+    interaction: "互动角落",
+    like: "喜欢这个小站",
+    liked: "已点赞",
+    totalLikes: "总赞数",
+    commentTitle: "留言",
+    commentName: "昵称",
+    commentText: "写点什么吧...",
+    commentButton: "发布留言",
+    localHint: "当前为前端本地演示版；真正全站共享需要接入后端。",
     buttons: ["Github", "Bilibili", "小红书", "Email"],
     footer: "Made with Next.js · yzy-ovo"
   },
@@ -32,56 +55,98 @@ const copy = {
     menuTitle: "GENERAL",
     nav: ["Recent Posts", "Projects", "About Site", "Recommendations", "Blogroll"],
     write: "New Post",
-    greeting: "Good Morning",
+    greetings: {
+      dawn: "Late Night",
+      morning: "Good Morning",
+      afternoon: "Good Afternoon",
+      evening: "Good Evening"
+    },
     greetingLine: "I'm yzy, nice to meet you!",
     latest: "Latest Post",
     latestTitle: "Website Log & Soft Blue Theme Lab",
     latestDesc: "Building a bilingual personal wiki, blog, and project showcase.",
     dateLabel: "Today",
-    project: "Random Pick",
-    projectTitle: "yzy-ovo Wiki",
-    projectDesc: "A place for ideas, notes, projects, and favorite links.",
+    project: "My Project",
+    projectTitle: "yzy Weather Page",
+    projectDesc: "A small weather project for forecasts, meteorology notes, and visual ideas.",
+    projectButton: "Open Weather Page",
+    wikiButton: "View GitHub",
     music: "Dream Zhu Xian · Diamond Zhang",
     friends: "Blogroll / Links",
     about: "About this place",
     aboutText: "A soft gradient-blue space for memories, notes, work, and tiny ideas. Inspired by personal wiki dashboards, redesigned with original yzy-ovo content, colors, and widgets.",
+    interaction: "Interaction Corner",
+    like: "Like this site",
+    liked: "Liked",
+    totalLikes: "Total likes",
+    commentTitle: "Comments",
+    commentName: "Name",
+    commentText: "Leave a message...",
+    commentButton: "Post comment",
+    localHint: "This is a front-end local demo. A shared counter and public comments need a backend.",
     buttons: ["Github", "Bilibili", "RedNote", "Email"],
     footer: "Made with Next.js · yzy-ovo"
   }
 };
 
-const socialUrls = [
-  "https://github.com/libai202505-prog",
-  "https://space.bilibili.com/382447104",
-  "https://xhslink.com/m/9j81uT8b2VH",
-  "mailto:1742521891@qq.com"
+const socialLinks = [
+  {
+    key: "github",
+    icon: "/icons/github.svg",
+    url: "https://github.com/libai202505-prog"
+  },
+  {
+    key: "bilibili",
+    icon: "/icons/bilibili.svg",
+    url: "https://space.bilibili.com/382447104"
+  },
+  {
+    key: "rednote",
+    icon: "/icons/rednote.svg",
+    url: "https://xhslink.com/m/9j81uT8b2VH"
+  },
+  {
+    key: "email",
+    icon: "/icons/email.svg",
+    url: "mailto:1742521891@qq.com"
+  }
 ];
 
 const musicUrl = "https://music.163.com/#/song?id=438456232";
+const weatherUrl = "https://libai202505-prog.github.io/weather-websites-of-y/";
+const githubUrl = "https://github.com/libai202505-prog";
+const initialLikeCount = 17396;
 
 function pad(value: number) {
   return String(value).padStart(2, "0");
 }
 
+function getGreeting(now: Date | null, lang: Lang) {
+  const hour = now?.getHours() ?? 9;
+  const greetings = copy[lang].greetings;
+  if (hour >= 5 && hour < 12) return greetings.morning;
+  if (hour >= 12 && hour < 18) return greetings.afternoon;
+  if (hour >= 18 && hour < 24) return greetings.evening;
+  return greetings.dawn;
+}
+
 function MiniCalendar({ now, lang }: { now: Date | null; lang: Lang }) {
-  const base = now ?? new Date(2026, 4, 15);
+  const base = now ?? new Date();
   const year = base.getFullYear();
   const month = base.getMonth();
   const today = base.getDate();
   const firstDay = (new Date(year, month, 1).getDay() + 6) % 7;
   const totalDays = new Date(year, month + 1, 0).getDate();
   const weekday = ["日", "一", "二", "三", "四", "五", "六"];
-  const weekdayEn = ["S", "M", "T", "W", "T", "F", "S"];
+  const weekdayEn = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const blanks = Array.from({ length: firstDay }, (_, index) => `blank-${index}`);
   const days = Array.from({ length: totalDays }, (_, index) => index + 1);
 
   return (
     <div className="calendar-card widget-card">
       <div className="mb-5 flex items-center justify-between text-sm text-slate-500">
-        <span>
-          {lang === "zh" ? `${year}/${month + 1}/${today}` : `${month + 1}/${today}/${year}`}
-        </span>
-        <span>{lang === "zh" ? weekday[base.getDay()] : weekdayEn[base.getDay()]}</span>
+        <span>{lang === "zh" ? `${year}/${month + 1}/${today}` : `${month + 1}/${today}/${year}`}</span>
+        <span>{lang === "zh" ? `周${weekday[base.getDay()]}` : weekdayEn[base.getDay()]}</span>
       </div>
       <div className="grid grid-cols-7 gap-3 text-center text-sm text-slate-500">
         {(lang === "zh" ? ["一", "二", "三", "四", "五", "六", "日"] : ["M", "T", "W", "T", "F", "S", "S"]).map((day) => (
@@ -107,10 +172,106 @@ function Clock({ now }: { now: Date | null }) {
   return <div className="clock-card widget-card font-mono text-5xl tracking-[0.08em] text-slate-700 sm:text-6xl">{text}</div>;
 }
 
+function InteractionCard({ lang }: { lang: Lang }) {
+  const t = copy[lang];
+  const [likeCount, setLikeCount] = useState(initialLikeCount);
+  const [liked, setLiked] = useState(false);
+  const [name, setName] = useState("");
+  const [text, setText] = useState("");
+  const [comments, setComments] = useState<CommentItem[]>([]);
+
+  useEffect(() => {
+    const savedLikes = window.localStorage.getItem("yzy-ovo-like-count");
+    const savedLiked = window.localStorage.getItem("yzy-ovo-liked") === "true";
+    const savedComments = window.localStorage.getItem("yzy-ovo-comments");
+
+    if (savedLikes) setLikeCount(Number(savedLikes));
+    setLiked(savedLiked);
+    if (savedComments) {
+      try {
+        setComments(JSON.parse(savedComments) as CommentItem[]);
+      } catch {
+        setComments([]);
+      }
+    }
+  }, []);
+
+  function handleLike() {
+    if (liked) return;
+    const next = likeCount + 1;
+    setLiked(true);
+    setLikeCount(next);
+    window.localStorage.setItem("yzy-ovo-liked", "true");
+    window.localStorage.setItem("yzy-ovo-like-count", String(next));
+  }
+
+  function handleComment(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const cleanText = text.trim();
+    if (!cleanText) return;
+
+    const nextComment: CommentItem = {
+      id: `${Date.now()}`,
+      name: name.trim() || "yzy guest",
+      text: cleanText,
+      createdAt: new Date().toLocaleString(lang === "zh" ? "zh-CN" : "en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      })
+    };
+    const nextComments = [nextComment, ...comments].slice(0, 5);
+    setComments(nextComments);
+    setText("");
+    window.localStorage.setItem("yzy-ovo-comments", JSON.stringify(nextComments));
+  }
+
+  return (
+    <article className="interaction-card glass-panel p-6">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-sm font-medium uppercase tracking-[0.22em] text-cyan-500">Like & Comment</p>
+          <h2 className="mt-2 text-2xl font-semibold text-slate-700">{t.interaction}</h2>
+        </div>
+        <button type="button" onClick={handleLike} className={liked ? "like-button liked" : "like-button"}>
+          <span>{liked ? "♥" : "♡"}</span>
+          {liked ? t.liked : t.like}
+        </button>
+      </div>
+
+      <div className="mt-4 rounded-3xl bg-white/50 p-4 text-sm text-slate-500">
+        {t.totalLikes}: <span className="font-semibold text-cyan-600">{likeCount.toLocaleString()}</span>
+      </div>
+
+      <form onSubmit={handleComment} className="mt-5 space-y-3">
+        <input value={name} onChange={(event) => setName(event.target.value)} className="comment-input" placeholder={t.commentName} />
+        <textarea value={text} onChange={(event) => setText(event.target.value)} className="comment-input min-h-24 resize-none" placeholder={t.commentText} />
+        <button type="submit" className="comment-submit">{t.commentButton}</button>
+      </form>
+
+      <div className="mt-5 space-y-3">
+        {comments.map((comment) => (
+          <div key={comment.id} className="comment-item">
+            <div className="flex items-center justify-between gap-3">
+              <span className="font-semibold text-slate-700">{comment.name}</span>
+              <span className="text-xs text-slate-400">{comment.createdAt}</span>
+            </div>
+            <p className="mt-1 text-sm leading-6 text-slate-500">{comment.text}</p>
+          </div>
+        ))}
+      </div>
+
+      <p className="mt-4 text-xs leading-5 text-slate-400">{t.localHint}</p>
+    </article>
+  );
+}
+
 export default function Home() {
   const [lang, setLang] = useState<Lang>("zh");
   const [now, setNow] = useState<Date | null>(null);
   const t = copy[lang];
+  const greeting = getGreeting(now, lang);
 
   useEffect(() => {
     setNow(new Date());
@@ -123,7 +284,7 @@ export default function Home() {
   return (
     <main className="min-h-screen overflow-hidden px-4 py-6 text-slate-700 sm:px-6 lg:px-10">
       <div className="site-shell mx-auto grid max-w-7xl gap-6 lg:grid-cols-[310px_minmax(420px,1fr)_390px]">
-        <aside className="sidebar glass-panel p-7 lg:sticky lg:top-6 lg:h-[calc(100vh-48px)]">
+        <aside className="sidebar glass-panel p-7 lg:sticky lg:top-6 lg:h-[calc(100vh-48px)] lg:overflow-y-auto">
           <div className="flex items-center gap-4">
             <Image src="/avatar.webp" alt="yzy-ovo avatar" width={56} height={56} priority className="avatar-ring rounded-full object-cover" />
             <div>
@@ -147,13 +308,13 @@ export default function Home() {
 
           <article id="section-0" className="latest-card mt-8 rounded-[2rem] border border-white/70 bg-white/45 p-5 shadow-sm">
             <p className="text-sm text-slate-500">{t.latest}</p>
-            <div className="mt-4 flex gap-3">
-              <Image src="/avatar.webp" alt="latest post" width={62} height={62} className="h-[62px] w-[62px] rounded-2xl object-cover" />
-              <div>
-                <h2 className="font-semibold leading-snug text-slate-700">{t.latestTitle}</h2>
-                <p className="mt-1 line-clamp-2 text-sm leading-6 text-slate-500">{t.latestDesc}</p>
+            <a href={githubUrl} target="_blank" rel="noreferrer" className="latest-row mt-4">
+              <Image src="/avatar.webp" alt="latest post" width={58} height={58} className="latest-thumb rounded-2xl object-cover" />
+              <div className="latest-copy min-w-0">
+                <h2 className="latest-title">{t.latestTitle}</h2>
+                <p className="latest-desc">{t.latestDesc}</p>
               </div>
-            </div>
+            </a>
           </article>
         </aside>
 
@@ -168,7 +329,7 @@ export default function Home() {
           <div className="grid gap-6 md:grid-cols-[1fr_0.74fr]">
             <article className="greeting-card glass-panel p-8 text-center">
               <Image src="/avatar.webp" alt="yzy-ovo avatar" width={126} height={126} priority className="avatar-big mx-auto rounded-full object-cover" />
-              <h2 className="mt-6 text-3xl font-semibold tracking-tight text-slate-700">{t.greeting}</h2>
+              <h2 className="mt-6 text-3xl font-semibold tracking-tight text-slate-700">{greeting}</h2>
               <p className="mx-auto mt-3 max-w-sm text-2xl leading-snug text-slate-700">
                 {lang === "zh" ? (
                   <>
@@ -188,26 +349,30 @@ export default function Home() {
                 <h3 className="mt-5 text-2xl font-semibold text-slate-700">{t.projectTitle}</h3>
                 <p className="mt-3 leading-7 text-slate-500">{t.projectDesc}</p>
               </div>
-              <div className="mt-7 flex items-center gap-3 rounded-2xl bg-white/55 p-3">
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-100 text-2xl text-cyan-500">✦</span>
-                <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/80">
-                  <div className="h-full w-2/3 rounded-full bg-cyan-300" />
-                </div>
+              <div className="mt-7 grid gap-3">
+                <a href={weatherUrl} target="_blank" rel="noreferrer" className="project-link primary">
+                  <span>☁</span>
+                  {t.projectButton}
+                </a>
+                <a href={githubUrl} target="_blank" rel="noreferrer" className="project-link">
+                  <span>⌘</span>
+                  {t.wikiButton}
+                </a>
               </div>
             </article>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            {t.buttons.map((button, index) => (
+            {socialLinks.map((link, index) => (
               <a
-                key={button}
-                href={socialUrls[index]}
-                target={index === 3 ? undefined : "_blank"}
-                rel={index === 3 ? undefined : "noreferrer"}
-                className={index === 0 ? "social-button social-dark" : "social-button"}
+                key={link.key}
+                href={link.url}
+                target={link.key === "email" ? undefined : "_blank"}
+                rel={link.key === "email" ? undefined : "noreferrer"}
+                className={link.key === "github" ? "social-button social-dark" : "social-button"}
               >
-                <span>{["●", "▣", "▥", "✉"][index]}</span>
-                {button}
+                <img src={link.icon} alt="" className="social-icon-img" />
+                {t.buttons[index]}
               </a>
             ))}
             <button type="button" onClick={() => setLang(lang === "zh" ? "en" : "zh")} className="language-button">
@@ -220,11 +385,13 @@ export default function Home() {
             <h2 className="mt-3 text-3xl font-semibold text-slate-700">{t.about}</h2>
             <p className="mt-4 leading-8 text-slate-500">{t.aboutText}</p>
           </article>
+
+          <InteractionCard lang={lang} />
         </section>
 
         <aside className="right-column space-y-6">
           <div className="flex items-center gap-5">
-            <a href="#section-0" className="write-button">
+            <a href={githubUrl} target="_blank" rel="noreferrer" className="write-button">
               <span>✎</span>
               {t.write}
             </a>
@@ -252,9 +419,10 @@ export default function Home() {
             <p className="text-sm font-medium uppercase tracking-[0.25em] text-cyan-500">Friends</p>
             <h2 className="mt-2 text-2xl font-semibold text-slate-700">{t.friends}</h2>
             <div className="mt-5 grid grid-cols-2 gap-3">
-              {["Lvy style", "Design", "Study", "Gallery"].map((friend) => (
-                <a key={friend} href="#" className="friend-pill">{friend}</a>
-              ))}
+              <a href={weatherUrl} target="_blank" rel="noreferrer" className="friend-pill">Weather</a>
+              <a href={githubUrl} target="_blank" rel="noreferrer" className="friend-pill">GitHub</a>
+              <a href="https://space.bilibili.com/382447104" target="_blank" rel="noreferrer" className="friend-pill">Bilibili</a>
+              <a href="https://xhslink.com/m/9j81uT8b2VH" target="_blank" rel="noreferrer" className="friend-pill">RedNote</a>
             </div>
           </article>
         </aside>
