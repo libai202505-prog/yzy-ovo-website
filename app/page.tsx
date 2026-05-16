@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import SiteNav from "../components/SiteNav";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
 type Lang = "zh" | "en";
@@ -397,7 +396,6 @@ export default function Home() {
 
   return (
     <main className="min-h-screen overflow-hidden px-4 pb-6 pt-28 text-slate-700 sm:px-6 lg:px-10">
-      <SiteNav />
       <button type="button" onClick={() => setLang(lang === "zh" ? "en" : "zh")} className="language-button top-language-button">
         {lang === "zh" ? "English" : "中文"}
       </button>

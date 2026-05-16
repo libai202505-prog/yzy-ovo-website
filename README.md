@@ -87,3 +87,9 @@ In Upstash Console, you can delete these keys if you want to reset data:
 yzy-ovo:likes
 yzy-ovo:comments
 ```
+
+## v10 更新
+
+- 写文章页的「导入密钥」现在会像「导入 MD」一样打开本地文件选择器，支持 `.txt`、`.json`、`.env`、`.key`。
+- 预览改成独立预览模式：会显示文章标题、日期、摘要、封面、正文和目录，不再只是原地切换一个空白框。
+- 推荐分享页改成随机推荐页：支持搜索、分类筛选、随机抽取资源。
