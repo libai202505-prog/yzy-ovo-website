@@ -16,7 +16,7 @@ const copy = {
   zh: {
     status: "开发中",
     menuTitle: "GENERAL",
-    nav: ["近期文章", "我的项目", "关于网站", "推荐分享", "优秀博客"],
+    nav: ["近期文章", "我的项目", "个人介绍", "推荐分享", "优秀博客"],
     write: "写文章",
     greetings: {
       dawn: "夜深啦",
@@ -24,11 +24,9 @@ const copy = {
       afternoon: "下午好",
       evening: "晚上好"
     },
-    greetingLine: "我是 yzy，很高兴遇见你！",
     latest: "最新文章",
     latestTitle: "建站记录 & 蓝色主题实验",
     latestDesc: "把这个空间做成自己的双语个人 Wiki、博客和项目展示页。",
-    dateLabel: "今天",
     project: "我的项目",
     projectTitle: "yzy 天气网页",
     projectDesc: "一个独立的气象网页项目，收藏天气信息与可视化灵感。",
@@ -36,24 +34,22 @@ const copy = {
     wikiButton: "查看 GitHub",
     music: "梦幻诛仙 · 张碧晨",
     friends: "友链 / Blogroll",
-    about: "关于这里",
-    aboutText: "一个浅蓝色渐变的小空间，记录生活碎片、学习笔记、作品和灵感。风格参考了个人 Wiki 的布局，但内容、配色和组件都重新设计为 yzy-ovo。",
     interaction: "互动角落",
     like: "喜欢这个小站",
     liked: "已点赞",
-    totalLikes: "总赞数",
+    totalLikes: "累计总赞数",
     commentTitle: "留言",
     commentName: "昵称",
     commentText: "写点什么吧...",
     commentButton: "发布留言",
-    localHint: "当前为前端本地演示版；真正全站共享需要接入后端。",
+    localHint: "当前版本已去掉 borrowed 初始数字；本地会累计更新。若要所有访客共享总赞数和评论，需要接入免费数据库或评论服务。",
     buttons: ["Github", "Bilibili", "小红书", "Email"],
     footer: "Made with Next.js · yzy-ovo"
   },
   en: {
     status: "Building",
     menuTitle: "GENERAL",
-    nav: ["Recent Posts", "Projects", "About Site", "Recommendations", "Blogroll"],
+    nav: ["Recent Posts", "Projects", "About Me", "Recommendations", "Blogroll"],
     write: "New Post",
     greetings: {
       dawn: "Late Night",
@@ -61,11 +57,9 @@ const copy = {
       afternoon: "Good Afternoon",
       evening: "Good Evening"
     },
-    greetingLine: "I'm yzy, nice to meet you!",
     latest: "Latest Post",
     latestTitle: "Website Log & Soft Blue Theme Lab",
     latestDesc: "Building a bilingual personal wiki, blog, and project showcase.",
-    dateLabel: "Today",
     project: "My Project",
     projectTitle: "yzy Weather Page",
     projectDesc: "A small weather project for forecasts, meteorology notes, and visual ideas.",
@@ -73,8 +67,6 @@ const copy = {
     wikiButton: "View GitHub",
     music: "Dream Zhu Xian · Diamond Zhang",
     friends: "Blogroll / Links",
-    about: "About this place",
-    aboutText: "A soft gradient-blue space for memories, notes, work, and tiny ideas. Inspired by personal wiki dashboards, redesigned with original yzy-ovo content, colors, and widgets.",
     interaction: "Interaction Corner",
     like: "Like this site",
     liked: "Liked",
@@ -83,7 +75,7 @@ const copy = {
     commentName: "Name",
     commentText: "Leave a message...",
     commentButton: "Post comment",
-    localHint: "This is a front-end local demo. A shared counter and public comments need a backend.",
+    localHint: "No borrowed starting number is used now. This counter updates locally. A shared counter and public comments need a free database or comment service.",
     buttons: ["Github", "Bilibili", "RedNote", "Email"],
     footer: "Made with Next.js · yzy-ovo"
   }
@@ -112,10 +104,12 @@ const socialLinks = [
   }
 ];
 
+const navLinks = ["#section-0", "#section-1", "/about", "#section-3", "#section-4"];
 const musicUrl = "https://music.163.com/#/song?id=438456232";
 const weatherUrl = "https://libai202505-prog.github.io/weather-websites-of-y/";
 const githubUrl = "https://github.com/libai202505-prog";
-const initialLikeCount = 17396;
+const weatherGithubUrl = "https://github.com/libai202505-prog/weather-websites-of-y";
+const initialLikeCount = 0;
 
 function pad(value: number) {
   return String(value).padStart(2, "0");
@@ -283,6 +277,10 @@ export default function Home() {
 
   return (
     <main className="min-h-screen overflow-hidden px-4 py-6 text-slate-700 sm:px-6 lg:px-10">
+      <button type="button" onClick={() => setLang(lang === "zh" ? "en" : "zh")} className="language-button top-language-button">
+        {lang === "zh" ? "English" : "中文"}
+      </button>
+
       <div className="site-shell mx-auto grid max-w-7xl gap-6 lg:grid-cols-[310px_minmax(420px,1fr)_390px]">
         <aside className="sidebar glass-panel p-7 lg:sticky lg:top-6 lg:h-[calc(100vh-48px)] lg:overflow-y-auto">
           <div className="flex items-center gap-4">
@@ -299,7 +297,7 @@ export default function Home() {
           <div className="mt-10 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{t.menuTitle}</div>
           <nav className="mt-5 space-y-3">
             {t.nav.map((item, index) => (
-              <a key={item} href={`#section-${index}`} className={index === 3 ? "nav-pill is-active" : "nav-pill"}>
+              <a key={item} href={navLinks[index]} className={index === 3 ? "nav-pill is-active" : "nav-pill"}>
                 <span className="nav-icon">{["▤", "◇", "○", "★", "◎"][index]}</span>
                 <span>{item}</span>
               </a>
@@ -308,7 +306,7 @@ export default function Home() {
 
           <article id="section-0" className="latest-card mt-8 rounded-[2rem] border border-white/70 bg-white/45 p-5 shadow-sm">
             <p className="text-sm text-slate-500">{t.latest}</p>
-            <a href={githubUrl} target="_blank" rel="noreferrer" className="latest-row mt-4">
+            <a href="/about" className="latest-row mt-4">
               <Image src="/avatar.webp" alt="latest post" width={58} height={58} className="latest-thumb rounded-2xl object-cover" />
               <div className="latest-copy min-w-0">
                 <h2 className="latest-title">{t.latestTitle}</h2>
@@ -341,6 +339,9 @@ export default function Home() {
                   </>
                 )}
               </p>
+              <a href="/about" className="about-entry-link mt-6 inline-flex">
+                {lang === "zh" ? "进入个人介绍" : "Read About Me"}
+              </a>
             </article>
 
             <article id="section-1" className="project-card glass-panel flex flex-col justify-between p-7">
@@ -354,7 +355,7 @@ export default function Home() {
                   <span>☁</span>
                   {t.projectButton}
                 </a>
-                <a href={githubUrl} target="_blank" rel="noreferrer" className="project-link">
+                <a href={weatherGithubUrl} target="_blank" rel="noreferrer" className="project-link">
                   <span>⌘</span>
                   {t.wikiButton}
                 </a>
@@ -375,23 +376,14 @@ export default function Home() {
                 {t.buttons[index]}
               </a>
             ))}
-            <button type="button" onClick={() => setLang(lang === "zh" ? "en" : "zh")} className="language-button">
-              {lang === "zh" ? "English" : "中文"}
-            </button>
           </div>
-
-          <article id="section-2" className="about-card glass-panel p-7">
-            <p className="text-sm font-medium uppercase tracking-[0.25em] text-cyan-500">About</p>
-            <h2 className="mt-3 text-3xl font-semibold text-slate-700">{t.about}</h2>
-            <p className="mt-4 leading-8 text-slate-500">{t.aboutText}</p>
-          </article>
 
           <InteractionCard lang={lang} />
         </section>
 
         <aside className="right-column space-y-6">
-          <div className="flex items-center gap-5">
-            <a href={githubUrl} target="_blank" rel="noreferrer" className="write-button">
+          <div className="flex items-center gap-5 pr-28 lg:pr-0">
+            <a href="/about" className="write-button">
               <span>✎</span>
               {t.write}
             </a>
@@ -420,7 +412,7 @@ export default function Home() {
             <h2 className="mt-2 text-2xl font-semibold text-slate-700">{t.friends}</h2>
             <div className="mt-5 grid grid-cols-2 gap-3">
               <a href={weatherUrl} target="_blank" rel="noreferrer" className="friend-pill">Weather</a>
-              <a href={githubUrl} target="_blank" rel="noreferrer" className="friend-pill">GitHub</a>
+              <a href={weatherGithubUrl} target="_blank" rel="noreferrer" className="friend-pill">GitHub</a>
               <a href="https://space.bilibili.com/382447104" target="_blank" rel="noreferrer" className="friend-pill">Bilibili</a>
               <a href="https://xhslink.com/m/9j81uT8b2VH" target="_blank" rel="noreferrer" className="friend-pill">RedNote</a>
             </div>

@@ -1,5 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="16" fill="#FF2442"/>
-  <path fill="#fff" d="M15 18.5c0-2.5 2-4.5 4.5-4.5h25c2.5 0 4.5 2 4.5 4.5v27c0 2.5-2 4.5-4.5 4.5h-25c-2.5 0-4.5-2-4.5-4.5v-27Z" opacity=".96"/>
-  <path fill="#FF2442" d="M23 24h18v4H30.5v4H40v4h-9.5v8H26v-8h-5v-4h5v-4h-3v-4Zm19 7h4v13h-4V31Z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="RedNote icon">
+  <defs>
+    <linearGradient id="g" x1="8" y1="4" x2="58" y2="60" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ff5b70"/>
+      <stop offset="0.48" stop-color="#ff2442"/>
+      <stop offset="1" stop-color="#f50f31"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#g)"/>
+  <text x="32" y="35" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-family="Arial, 'Microsoft YaHei', 'PingFang SC', sans-serif" font-size="18" font-weight="900" letter-spacing="-1.4">小红书</text>
 </svg>

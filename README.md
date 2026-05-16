@@ -1,18 +1,20 @@
 # yzy-ovo personal wiki
 
-A soft blue bilingual personal dashboard built with Next.js and Tailwind CSS.
+A soft blue bilingual personal wiki dashboard built with Next.js, Tailwind CSS, and React.
 
 ## What changed in this version
 
-- Dynamic greeting based on local visitor time.
-- Fixed latest-post card layout to avoid overlap.
-- Dark teal hover style for the left navigation.
-- Added Bilibili and RedNote app-style icons.
-- Added weather project link.
-- Added a front-end like/comment demo using localStorage.
+- Moved the language switch to the top-right corner.
+- Added a separate `/about` page for personal introduction.
+- Updated nav hover style: white row with deep-green icon.
+- Updated weather project GitHub link to `libai202505-prog/weather-websites-of-y`.
+- Reworked the RedNote icon to a clearer app-style local SVG.
+- Removed the borrowed fake like count and reset the local counter to start from 0.
+- Kept likes/comments as a front-end local demo. For shared visitor-wide data, connect a backend service such as Upstash Redis, Supabase, or Giscus.
 
-## Important note about likes and comments
+## Local dev
 
-The current like/comment widget stores data in the visitor's browser with localStorage. It is useful for UI testing, but it is not shared globally between visitors.
-
-For real shared likes and public comments, connect a backend/database or use an external comment service such as GitHub Discussions with Giscus.
+```bash
+npm install
+npm run dev
+```
