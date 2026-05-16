@@ -1726,3 +1726,33 @@ button.floating-edit {
     min-width: 6.4rem;
   }
 }
+
+/* v16: project management saves from each card, so top actions stay compact. */
+.project-admin-actions {
+  z-index: 90;
+}
+
+@media (max-width: 760px) {
+  .project-admin-actions {
+    top: 5.35rem;
+    left: 1rem;
+    right: 1rem;
+    justify-content: flex-end;
+    gap: 0.55rem;
+  }
+
+  .project-admin-actions .write-small-button,
+  .project-admin-actions .write-tool-button {
+    min-height: 2.55rem;
+    border-radius: 0.85rem;
+    padding-left: 0.9rem;
+    padding-right: 0.9rem;
+    font-size: 0.92rem;
+  }
+}
+
+@media (max-width: 430px) {
+  .project-admin-actions {
+    justify-content: flex-start;
+  }
+}

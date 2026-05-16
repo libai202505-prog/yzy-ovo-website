@@ -84,7 +84,7 @@ export default function ProjectsPage() {
       }
       setSecret(imported);
       window.localStorage.setItem("yzy-ovo-admin-secret", imported);
-      setStatus(`已从 ${file.name} 导入管理员密钥，只保存在当前浏览器。`);
+      setStatus(`已导入密钥文件：${file.name}。现在可以编辑项目，点卡片右上角完成会自动保存到线上。`);
     };
     reader.readAsText(file);
     event.target.value = "";
@@ -97,12 +97,16 @@ export default function ProjectsPage() {
   function startEdit(id: string) {
     setManageMode(true);
     setEditingId(id);
-    setStatus(secret ? "正在原卡片中编辑。修改后点卡片右上角完成，再点页面右上角完成保存。" : "可以先本地编辑预览；保存到线上前需要导入管理员密钥文件。");
+    setStatus(secret ? "正在原卡片中编辑。修改后点卡片右上角完成，会自动保存到线上。" : "可以先本地编辑预览；保存到线上前需要导入管理员密钥文件。");
   }
 
   function completeInlineEdit() {
     setEditingId(null);
-    setStatus(secret ? "已完成本张卡片编辑，点右上角完成即可保存到线上。" : "已完成本地编辑。导入密钥后，点右上角完成保存到线上。");
+    if (secret.trim()) {
+      void saveOnline({ stayInManageMode: true, message: "已完成并保存到线上。" });
+    } else {
+      setStatus("已完成本地编辑。导入密钥后，再编辑并点卡片完成即可保存到线上。");
+    }
   }
 
   function cancelInlineEdit(id: string) {
@@ -126,9 +130,14 @@ export default function ProjectsPage() {
 
   function deleteProject(id: string) {
     const next = drafts.filter((item) => item.id !== id);
-    setDrafts(next.length ? next : [makeProject()]);
+    const nextDrafts = next.length ? next : [makeProject()];
+    setDrafts(nextDrafts);
     if (editingId === id) setEditingId(null);
-    setStatus(secret ? "已从草稿中删除，点右上角完成保存到线上。" : "已从本地草稿中删除；保存到线上前需要导入管理员密钥文件。");
+    if (secret.trim()) {
+      void saveOnline({ projectsToSave: nextDrafts, stayInManageMode: true, message: "已删除并保存到线上。" });
+    } else {
+      setStatus("已从本地草稿中删除；保存到线上前需要导入管理员密钥文件。");
+    }
   }
 
   function cancelChanges() {
@@ -138,20 +147,22 @@ export default function ProjectsPage() {
     setStatus("已取消未保存的项目修改。");
   }
 
-  async function saveOnline() {
-    if (!secret.trim()) {
-      setStatus("请先导入管理员密钥文件。导入后再点完成保存到线上。");
+  async function saveOnline(options?: { projectsToSave?: ProjectItem[]; stayInManageMode?: boolean; message?: string }) {
+    const key = secret.trim();
+    if (!key) {
+      setStatus("请先导入管理员密钥文件。导入后再点项目卡片里的完成保存到线上。");
       return;
     }
 
+    const projectsToSave = options?.projectsToSave ?? drafts;
     setStatus("正在保存项目到线上...");
     const response = await fetch("/api/projects", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        "x-yzy-admin-secret": secret.trim()
+        "x-yzy-admin-secret": key
       },
-      body: JSON.stringify({ projects: drafts })
+      body: JSON.stringify({ projects: projectsToSave })
     });
 
     const data = (await response.json()) as { projects?: ProjectItem[]; error?: string };
@@ -160,12 +171,12 @@ export default function ProjectsPage() {
       return;
     }
 
-    const savedProjects = normalizeProjects(data.projects ?? drafts);
+    const savedProjects = normalizeProjects(data.projects ?? projectsToSave);
     setProjects(savedProjects);
     setDrafts(savedProjects);
     setEditingId(null);
-    setManageMode(false);
-    setStatus("已保存到线上。刷新 /projects 后，所有访客都会看到新项目列表。");
+    setManageMode(Boolean(options?.stayInManageMode));
+    setStatus(options?.message ?? "已保存到线上。刷新 /projects 后，所有访客都会看到新项目列表。");
   }
 
   const visibleProjects = manageMode ? drafts : projects;
@@ -180,7 +191,6 @@ export default function ProjectsPage() {
           <button type="button" className="write-small-button" onClick={cancelChanges}>取消</button>
           <button type="button" className="write-small-button" onClick={addProject}>添加</button>
           <button type="button" className="write-tool-button primary" onClick={() => secretInputRef.current?.click()}>导入密钥</button>
-          <button type="button" className="write-small-button project-done-button" onClick={saveOnline}>完成</button>
         </div>
       ) : (
         <button type="button" className="floating-edit" onClick={enterManageMode}>编辑</button>
@@ -250,7 +260,7 @@ export default function ProjectsPage() {
 
         {manageMode ? (
           <p className="project-status mt-6 rounded-3xl bg-white/40 p-4 text-sm leading-7 text-slate-500">
-            {secret ? "已导入密钥。" : "未导入密钥。"} {status}
+            {status}
           </p>
         ) : null}
       </section>
