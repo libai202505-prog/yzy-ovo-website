@@ -20,7 +20,7 @@ const copy = {
     project: "随机推荐",
     projectTitle: "yzy-ovo Wiki",
     projectDesc: "收藏灵感、笔记、项目和喜欢的链接。",
-    music: "Close To You",
+    music: "梦幻诛仙 · 张碧晨",
     friends: "友链 / Blogroll",
     about: "关于这里",
     aboutText: "一个浅蓝色渐变的小空间，记录生活碎片、学习笔记、作品和灵感。风格参考了个人 Wiki 的布局，但内容、配色和组件都重新设计为 yzy-ovo。",
@@ -41,7 +41,7 @@ const copy = {
     project: "Random Pick",
     projectTitle: "yzy-ovo Wiki",
     projectDesc: "A place for ideas, notes, projects, and favorite links.",
-    music: "Close To You",
+    music: "Dream Zhu Xian · Diamond Zhang",
     friends: "Blogroll / Links",
     about: "About this place",
     aboutText: "A soft gradient-blue space for memories, notes, work, and tiny ideas. Inspired by personal wiki dashboards, redesigned with original yzy-ovo content, colors, and widgets.",
@@ -49,6 +49,15 @@ const copy = {
     footer: "Made with Next.js · yzy-ovo"
   }
 };
+
+const socialUrls = [
+  "https://github.com/libai202505-prog",
+  "https://space.bilibili.com/382447104",
+  "https://xhslink.com/m/9j81uT8b2VH",
+  "mailto:1742521891@qq.com"
+];
+
+const musicUrl = "https://music.163.com/#/song?id=438456232";
 
 function pad(value: number) {
   return String(value).padStart(2, "0");
@@ -190,7 +199,13 @@ export default function Home() {
 
           <div className="flex flex-wrap items-center gap-3">
             {t.buttons.map((button, index) => (
-              <a key={button} href="#" className={index === 0 ? "social-button social-dark" : "social-button"}>
+              <a
+                key={button}
+                href={socialUrls[index]}
+                target={index === 3 ? undefined : "_blank"}
+                rel={index === 3 ? undefined : "noreferrer"}
+                className={index === 0 ? "social-button social-dark" : "social-button"}
+              >
                 <span>{["●", "▣", "▥", "✉"][index]}</span>
                 {button}
               </a>
@@ -230,7 +245,7 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            <button className="play-button" aria-label="play" type="button">▶</button>
+            <a className="play-button" aria-label="play music" href={musicUrl} target="_blank" rel="noreferrer">▶</a>
           </article>
 
           <article id="section-4" className="friends-card glass-panel p-6">
