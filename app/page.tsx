@@ -572,7 +572,7 @@ export default function Home() {
                 <p className="mt-3 leading-7 text-slate-500">{t.projectDesc}</p>
               </div>
 
-              <div className="mt-6 grid gap-3 sm:grid-cols-2 md:grid-cols-1 xl:grid-cols-2">
+              <div className="home-project-actions">
                 <a href={weatherUrl} target="_blank" rel="noreferrer" className="project-link primary home-project-link">
                   <span aria-hidden="true">☁</span>
                   {t.projectButton}

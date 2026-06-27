@@ -130,6 +130,20 @@ body::after {
   stroke: currentColor;
 }
 
+.home-project-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.home-project-actions .home-project-link {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  box-sizing: border-box;
+}
+
 .home-project-link {
   min-width: 9.6rem;
   padding-inline: 1.35rem;
