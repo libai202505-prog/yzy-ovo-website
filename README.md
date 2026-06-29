@@ -40,7 +40,37 @@ app/api/comments/route.ts
 They store:
 
 - total site likes
-- public comments visible to all visitors
+- public comments (only after you approve them)
+- pending comments waiting in the moderation queue
+
+### Comment moderation
+
+Visitors submit comments into a **pending queue**. They are **not** shown on the homepage until you approve them.
+
+Moderation page (bookmark this URL; it is not linked in the public nav):
+
+```txt
+/admin/comments
+```
+
+Use the same `ADMIN_SECRET` as `/about/edit` (import from a local `.txt` / `.env` file). Approve or reject each pending comment in the browser.
+
+Optional Telegram alert when a new comment arrives (configure in Vercel):
+
+```txt
+TELEGRAM_NOTIFY_BOT_TOKEN
+TELEGRAM_NOTIFY_CHAT_ID
+SITE_PUBLIC_URL=https://www.yaozhouye.com
+```
+
+Use a bot token and **your** chat id (for example the numeric id from Telegram). The message includes a link to `/admin/comments`. Email is not built in; use Telegram or open the admin page on your phone.
+
+Redis keys:
+
+```txt
+yzy-ovo:comments          # approved, public
+yzy-ovo:comments:pending  # waiting for review
+```
 
 ### Setup on Upstash
 
@@ -63,6 +93,15 @@ Add:
 ```txt
 UPSTASH_REDIS_REST_URL
 UPSTASH_REDIS_REST_TOKEN
+ADMIN_SECRET=你自己设置的一串长密钥（与 /about/edit 相同，≥24 字符，勿提交到 Git）
+```
+
+Optional (new comment Telegram alert):
+
+```txt
+TELEGRAM_NOTIFY_BOT_TOKEN
+TELEGRAM_NOTIFY_CHAT_ID
+SITE_PUBLIC_URL=https://www.yaozhouye.com
 ```
 
 Select `Production` and `Preview`. `Development` is not required for the live website.
@@ -86,6 +125,7 @@ In Upstash Console, you can delete these keys if you want to reset data:
 ```txt
 yzy-ovo:likes
 yzy-ovo:comments
+yzy-ovo:comments:pending
 ```
 
 ## v10 更新

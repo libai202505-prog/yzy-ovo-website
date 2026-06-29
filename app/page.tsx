@@ -43,8 +43,10 @@ const copy = {
     syncing: "同步中",
     commentTitle: "公开留言",
     commentName: "昵称",
-    commentText: "写下想公开显示的留言，建议不要填写隐私信息...",
-    commentButton: "发布公开留言",
+    commentText: "写下留言，审核通过后才会公开展示。请勿填写隐私信息…",
+    commentButton: "提交留言",
+    commentPending: "已提交，审核通过后会展示在下方。",
+    commentModerationMode: "审核后公开",
     buttons: ["Github", "Bilibili", "小红书", "Email"],
     footer: "Made with Next.js · yzy-ovo"
   },
@@ -78,8 +80,10 @@ const copy = {
     syncing: "Syncing",
     commentTitle: "Public Comments",
     commentName: "Name",
-    commentText: "Leave a public message. Please avoid private information...",
-    commentButton: "Post public comment",
+    commentText: "Your message is reviewed before it appears publicly. Avoid private info…",
+    commentButton: "Submit comment",
+    commentPending: "Submitted. It will appear here after approval.",
+    commentModerationMode: "Reviewed",
     buttons: ["Github", "Bilibili", "RedNote", "Email"],
     footer: "Made with Next.js · yzy-ovo"
   }
@@ -248,6 +252,8 @@ function InteractionCard({ lang }: { lang: Lang }) {
   const [comments, setComments] = useState<CommentItem[]>([]);
   const [commentsSyncing, setCommentsSyncing] = useState(true);
   const [useCommentBackend, setUseCommentBackend] = useState(false);
+  const [commentModeration, setCommentModeration] = useState(false);
+  const [commentNotice, setCommentNotice] = useState("");
 
   function readLocalComments() {
     const savedComments = window.localStorage.getItem("yzy-ovo-comments");
@@ -296,11 +302,12 @@ function InteractionCard({ lang }: { lang: Lang }) {
       try {
         const response = await fetch("/api/comments", { cache: "no-store" });
         if (!response.ok) throw new Error("Failed to load comments");
-        const data = (await response.json()) as { comments?: CommentItem[]; connected?: boolean };
+        const data = (await response.json()) as { comments?: CommentItem[]; connected?: boolean; moderation?: boolean };
         if (cancelled) return;
         if (data.connected) {
           setComments(data.comments ?? []);
           setUseCommentBackend(true);
+          setCommentModeration(Boolean(data.moderation));
         } else {
           setComments(readLocalComments());
           setUseCommentBackend(false);
@@ -371,6 +378,7 @@ function InteractionCard({ lang }: { lang: Lang }) {
 
     setText("");
     setCommentsSyncing(true);
+    setCommentNotice("");
 
     if (useCommentBackend) {
       try {
@@ -379,11 +387,18 @@ function InteractionCard({ lang }: { lang: Lang }) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name: draftComment.name, text: draftComment.text })
         });
-        if (!response.ok) throw new Error("Failed to save comment");
-        const data = (await response.json()) as { comments?: CommentItem[]; comment?: CommentItem; connected?: boolean };
-        if (data.connected) {
+        if (!response.ok) {
+          if (response.status === 429) {
+            setCommentNotice(lang === "zh" ? "提交太频繁，请稍后再试。" : "Too many submissions. Try again later.");
+            setCommentsSyncing(false);
+            return;
+          }
+          throw new Error("Failed to save comment");
+        }
+        const data = (await response.json()) as { pending?: boolean; connected?: boolean };
+        if (data.connected && data.pending) {
           setUseCommentBackend(true);
-          setComments(data.comments ?? (data.comment ? [data.comment, ...comments].slice(0, 10) : comments));
+          setCommentNotice(t.commentPending);
           setCommentsSyncing(false);
           return;
         }
@@ -422,12 +437,15 @@ function InteractionCard({ lang }: { lang: Lang }) {
       <section className="mt-5 rounded-3xl bg-white/45 p-4">
         <div className="flex items-center justify-between gap-3">
           <h3 className="text-lg font-bold text-slate-700">{t.commentTitle}</h3>
-          <span className="like-mode-pill">{commentsSyncing ? t.syncing : useCommentBackend ? t.backendMode : t.localMode}</span>
+          <span className="like-mode-pill">
+            {commentsSyncing ? t.syncing : useCommentBackend ? (commentModeration ? t.commentModerationMode : t.backendMode) : t.localMode}
+          </span>
         </div>
         <form onSubmit={handleComment} className="mt-4 space-y-3">
           <input value={name} onChange={(event) => setName(event.target.value)} className="comment-input" placeholder={t.commentName} maxLength={24} />
           <textarea value={text} onChange={(event) => setText(event.target.value)} className="comment-input min-h-24 resize-none" placeholder={t.commentText} maxLength={300} />
           <button type="submit" disabled={commentsSyncing} className="comment-submit">{commentsSyncing ? t.syncing : t.commentButton}</button>
+          {commentNotice ? <p className="text-sm text-cyan-700">{commentNotice}</p> : null}
         </form>
       </section>
 
