@@ -1,107 +1,42 @@
 import { NextRequest, NextResponse } from "next/server";
-
-const COMMENTS_KEY = "yzy-ovo:comments";
-const MAX_COMMENTS = 50;
-const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL;
-const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
-
-type UpstashResult = {
-  result?: unknown;
-  error?: string;
-};
-
-type CommentItem = {
-  id: string;
-  name: string;
-  text: string;
-  createdAt: string;
-};
-
-function isConfigured() {
-  return Boolean(UPSTASH_URL && UPSTASH_TOKEN);
-}
-
-async function runRedisCommand(command: string[]) {
-  if (!UPSTASH_URL || !UPSTASH_TOKEN) {
-    throw new Error("Upstash Redis is not configured.");
-  }
-
-  const path = command.map((part) => encodeURIComponent(part)).join("/");
-  const response = await fetch(`${UPSTASH_URL}/${path}`, {
-    headers: {
-      Authorization: `Bearer ${UPSTASH_TOKEN}`
-    },
-    cache: "no-store"
-  });
-
-  if (!response.ok) {
-    throw new Error(`Upstash request failed: ${response.status}`);
-  }
-
-  const data = (await response.json()) as UpstashResult;
-  if (data.error) {
-    throw new Error(data.error);
-  }
-
-  return data.result;
-}
-
-function cleanText(value: unknown, maxLength: number) {
-  return String(value ?? "")
-    .replace(/[<>]/g, "")
-    .trim()
-    .slice(0, maxLength);
-}
-
-function formatDate() {
-  return new Date().toLocaleString("zh-CN", {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit"
-  });
-}
-
-function parseComments(result: unknown): CommentItem[] {
-  if (!Array.isArray(result)) return [];
-
-  return result
-    .map((item) => {
-      try {
-        const parsed = JSON.parse(String(item)) as CommentItem;
-        if (!parsed.id || !parsed.text) return null;
-        return parsed;
-      } catch {
-        return null;
-      }
-    })
-    .filter((item): item is CommentItem => Boolean(item));
-}
-
-async function readComments() {
-  const result = await runRedisCommand(["LRANGE", COMMENTS_KEY, "0", String(MAX_COMMENTS - 1)]);
-  return parseComments(result);
-}
+import {
+  MAX_PENDING_COMMENTS,
+  allowCommentSubmission,
+  cleanText,
+  clientIpFromRequest,
+  formatCommentDate,
+  isRedisConfigured,
+  readPublicComments,
+  runRedisCommand,
+  serializeComment,
+  PENDING_KEY
+} from "../../../lib/commentsShared";
+import { notifyOwnerNewPendingComment } from "../../../lib/commentNotify";
 
 export async function GET() {
-  if (!isConfigured()) {
-    return NextResponse.json({ comments: [], connected: false });
+  if (!isRedisConfigured()) {
+    return NextResponse.json({ comments: [], connected: false, moderation: false });
   }
 
   try {
-    const comments = await readComments();
-    return NextResponse.json({ comments, connected: true });
+    const comments = await readPublicComments();
+    return NextResponse.json({ comments, connected: true, moderation: true });
   } catch {
-    return NextResponse.json({ comments: [], connected: false }, { status: 200 });
+    return NextResponse.json({ comments: [], connected: false, moderation: false }, { status: 200 });
   }
 }
 
 export async function POST(request: NextRequest) {
-  if (!isConfigured()) {
-    return NextResponse.json({ comments: [], connected: false }, { status: 200 });
+  if (!isRedisConfigured()) {
+    return NextResponse.json({ pending: false, connected: false }, { status: 200 });
   }
 
   try {
+    const ip = clientIpFromRequest(request);
+    if (!(await allowCommentSubmission(ip))) {
+      return NextResponse.json({ error: "Too many comments. Try again later." }, { status: 429 });
+    }
+
     const body = (await request.json()) as { name?: unknown; text?: unknown };
     const text = cleanText(body.text, 300);
 
@@ -109,19 +44,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Comment text is required." }, { status: 400 });
     }
 
-    const comment: CommentItem = {
+    const comment = {
       id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
       name: cleanText(body.name, 24) || "yzy guest",
       text,
-      createdAt: formatDate()
+      createdAt: formatCommentDate()
     };
 
-    await runRedisCommand(["LPUSH", COMMENTS_KEY, JSON.stringify(comment)]);
-    await runRedisCommand(["LTRIM", COMMENTS_KEY, "0", String(MAX_COMMENTS - 1)]);
-    const comments = await readComments();
+    await runRedisCommand(["LPUSH", PENDING_KEY, serializeComment(comment)]);
+    await runRedisCommand(["LTRIM", PENDING_KEY, "0", String(MAX_PENDING_COMMENTS - 1)]);
 
-    return NextResponse.json({ comment, comments, connected: true });
+    void notifyOwnerNewPendingComment(comment);
+
+    return NextResponse.json({
+      pending: true,
+      connected: true,
+      message: "Comment submitted for review."
+    });
   } catch {
-    return NextResponse.json({ comments: [], connected: false }, { status: 200 });
+    return NextResponse.json({ pending: false, connected: false }, { status: 200 });
   }
 }
