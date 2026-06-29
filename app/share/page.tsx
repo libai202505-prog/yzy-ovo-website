@@ -330,14 +330,7 @@ export default function SharePage() {
                         {isShareIconImage(item.icon) ? (
                           <ShareResourceIcon icon={item.icon} />
                         ) : (
-                          <input
-                            className="share-icon-input share-icon-input--solo"
-                            value={item.icon}
-                            onChange={(event) => updateResource(item.id, { icon: event.target.value })}
-                            aria-label="图标符号"
-                            placeholder="★"
-                            maxLength={32}
-                          />
+                          <div className="resource-icon share-icon-preview-text">{item.icon || "★"}</div>
                         )}
                         <div className="share-icon-tools">
                           <button type="button" className="share-icon-tool-btn" onClick={() => triggerIconUpload(item.id)}>
@@ -353,19 +346,22 @@ export default function SharePage() {
                       <div className="share-edit-main">
                         <input className="project-inline-input share-title-input" value={item.title} onChange={(event) => updateResource(item.id, { title: event.target.value })} placeholder="资源标题" />
                         <input className="project-inline-input share-url-input" value={item.url} onChange={(event) => updateResource(item.id, { url: event.target.value })} placeholder="https://..." />
-                        {isShareIconImage(item.icon) && !item.icon.startsWith("data:") ? (
+                        <label className="share-icon-path-label">
+                          图标路径
                           <input
                             className="share-icon-path-input"
-                            value={item.icon}
-                            onChange={(event) => updateResource(item.id, { icon: event.target.value.trim() })}
-                            placeholder="/icons/bilibili.svg"
-                            aria-label="站内图标路径"
+                            value={item.icon.startsWith("data:") ? "" : item.icon}
+                            onChange={(event) => updateResource(item.id, { icon: event.target.value })}
+                            placeholder="/icons/gufeng1.jpg 或符号 ★"
+                            aria-label="图标路径或符号"
+                            disabled={item.icon.startsWith("data:")}
                           />
-                        ) : item.icon.startsWith("data:") ? (
-                          <p className="share-icon-hint">已上传图片，保存后访客可见。可点「改回符号」换文字图标。</p>
+                        </label>
+                        {item.icon.startsWith("data:") ? (
+                          <p className="share-icon-hint">当前为上传图片。要改用 public/icons 路径，请先点「改回符号」再填路径。</p>
                         ) : (
                           <p className="share-icon-hint">
-                            左侧方框可填符号，或直接填 <code>/icons/bilibili.svg</code>（文件放在 <code>public/icons/</code> 后随 git 部署）。
+                            把文件放进 <code>public/icons/</code> 后 push 部署，这里填 <code>/icons/文件名.jpg</code>；也可填 <code>★</code>、<code>B</code> 等符号。
                           </p>
                         )}
                       </div>

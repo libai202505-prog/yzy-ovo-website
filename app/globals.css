@@ -2150,8 +2150,17 @@ button.floating-edit {
   background: rgba(255, 255, 255, 0.9);
 }
 
-.share-icon-input--solo {
-  flex-shrink: 0;
+.share-icon-path-label {
+  display: grid;
+  gap: 0.35rem;
+  width: 100%;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: rgb(100 116 139);
+}
+
+.share-icon-preview-text {
+  font-size: 1.35rem;
 }
 
 .share-icon-path-input {
