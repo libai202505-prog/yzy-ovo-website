@@ -449,16 +449,20 @@ function InteractionCard({ lang }: { lang: Lang }) {
         </form>
       </section>
 
-      <div className="mt-5 space-y-3">
-        {comments.map((comment) => (
-          <div key={comment.id} className="comment-item">
-            <div className="flex items-center justify-between gap-3">
-              <span className="font-semibold text-slate-700">{comment.name}</span>
-              <span className="text-xs text-slate-400">{comment.createdAt}</span>
+      <div className="comment-list-panel mt-5">
+        {comments.length === 0 ? (
+          <p className="text-sm text-slate-400">{lang === "zh" ? "暂无已展示的留言。" : "No comments yet."}</p>
+        ) : (
+          comments.map((comment) => (
+            <div key={comment.id} className="comment-item">
+              <div className="flex items-center justify-between gap-3">
+                <span className="font-semibold text-slate-700">{comment.name}</span>
+                <span className="text-xs text-slate-400">{comment.createdAt}</span>
+              </div>
+              <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-6 text-slate-500">{comment.text}</p>
             </div>
-            <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-6 text-slate-500">{comment.text}</p>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
     </article>
@@ -529,7 +533,7 @@ export default function Home() {
           <div className="mt-10 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{t.menuTitle}</div>
           <nav className="mt-5 space-y-3">
             {t.nav.map((item, index) => (
-              <a key={item} href={navLinks[index]} className={index === 3 ? "nav-pill is-active" : "nav-pill"}>
+              <a key={item} href={navLinks[index]} className="nav-pill">
                 <span className="nav-icon" aria-hidden="true"><SidebarIcon index={index} /></span>
                 <span>{item}</span>
               </a>

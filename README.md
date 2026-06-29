@@ -53,7 +53,7 @@ Moderation page (bookmark this URL; it is not linked in the public nav):
 /admin/comments
 ```
 
-Use the same `ADMIN_SECRET` as `/about/edit` (import from a local `.txt` / `.env` file). Approve or reject each pending comment in the browser.
+Use the same `ADMIN_SECRET` as `/about/edit` (import from a local `.txt` / `.env` file). Approve or reject pending comments; use **从首页删除** to remove already-public comments from the home page.
 
 Optional Telegram alert when a new comment arrives (configure in Vercel):
 

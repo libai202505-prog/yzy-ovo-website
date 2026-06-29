@@ -76,10 +76,16 @@ export default function CommentModerationPage() {
     event.target.value = "";
   }
 
-  async function moderate(action: "approve" | "reject", id: string) {
+  async function moderate(action: "approve" | "reject" | "delete_published", id: string, label?: string) {
     if (!secret) {
       setStatus("请先导入或粘贴管理员密钥。");
       return;
+    }
+
+    if (action === "delete_published") {
+      const item = published.find((c) => c.id === id);
+      const preview = item ? `「${item.text.slice(0, 40)}${item.text.length > 40 ? "…" : ""}」` : "这条留言";
+      if (!window.confirm(`确定从首页删除 ${preview}？删除后不可恢复。`)) return;
     }
 
     setBusyId(id);
@@ -96,7 +102,9 @@ export default function CommentModerationPage() {
       if (!response.ok) throw new Error(data.error ?? "操作失败");
       setPending(data.pending ?? []);
       setPublished(data.published ?? []);
-      setStatus(action === "approve" ? "已通过并公开显示。" : "已拒绝，未公开。");
+      if (action === "approve") setStatus("已通过并公开显示。");
+      else if (action === "reject") setStatus("已拒绝，未公开。");
+      else setStatus(label ?? "已从首页删除。");
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "操作失败");
     } finally {
@@ -185,24 +193,34 @@ export default function CommentModerationPage() {
             )}
           </div>
 
-          <div className="mt-10 space-y-3">
+          <div className="mt-10">
             <h2 className="text-lg font-semibold text-slate-700">已公开（首页展示，最多 50 条）</h2>
+            <p className="mt-1 text-xs text-slate-400">列表可滚动；误通过的留言可点「从首页删除」。</p>
             {published.length === 0 ? (
-              <p className="text-sm text-slate-500">暂无已审核通过的留言。</p>
+              <p className="mt-3 text-sm text-slate-500">暂无已审核通过的留言。</p>
             ) : (
-              published.slice(0, 15).map((comment) => (
-                <div key={comment.id} className="comment-item rounded-3xl bg-white/35 p-3 opacity-90">
-                  <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
-                    <span className="font-medium text-slate-600">{comment.name}</span>
-                    <span className="text-xs text-slate-400">{comment.createdAt}</span>
+              <div className="comment-list-panel comment-list-panel--admin mt-4">
+                {published.map((comment) => (
+                  <div key={comment.id} className="comment-item rounded-3xl bg-white/40 p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
+                      <span className="font-medium text-slate-600">{comment.name}</span>
+                      <span className="text-xs text-slate-400">{comment.createdAt}</span>
+                    </div>
+                    <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-slate-600">{comment.text}</p>
+                    <div className="mt-3">
+                      <button
+                        type="button"
+                        className="project-link home-project-link comment-delete-btn"
+                        disabled={busyId === comment.id}
+                        onClick={() => moderate("delete_published", comment.id, "已从首页删除该留言。")}
+                      >
+                        从首页删除
+                      </button>
+                    </div>
                   </div>
-                  <p className="mt-1 line-clamp-3 text-sm text-slate-500">{comment.text}</p>
-                </div>
-              ))
+                ))}
+              </div>
             )}
-            {published.length > 15 ? (
-              <p className="text-xs text-slate-400">另有 {published.length - 15} 条未展开…</p>
-            ) : null}
           </div>
         </article>
       </div>

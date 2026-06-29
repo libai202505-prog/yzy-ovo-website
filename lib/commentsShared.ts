@@ -91,6 +91,14 @@ export async function readPendingComments() {
   return parseComments(result);
 }
 
+export async function removePublicCommentById(id: string) {
+  const published = await readPublicComments();
+  const target = published.find((item) => item.id === id);
+  if (!target) return null;
+  await runRedisCommand(["LREM", COMMENTS_KEY, "1", serializeComment(target)]);
+  return target;
+}
+
 export function serializeComment(comment: CommentItem) {
   return JSON.stringify(comment);
 }

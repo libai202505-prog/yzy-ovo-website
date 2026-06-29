@@ -7,6 +7,7 @@ import {
   isRedisConfigured,
   readPendingComments,
   readPublicComments,
+  removePublicCommentById,
   runRedisCommand,
   serializeComment
 } from "../../../../lib/commentsShared";
@@ -66,8 +67,27 @@ export async function POST(request: NextRequest) {
     const action = String(body.action ?? "").trim();
     const id = String(body.id ?? "").trim();
 
-    if (!id || (action !== "approve" && action !== "reject")) {
-      return NextResponse.json({ error: "action must be approve or reject, with id." }, { status: 400 });
+    if (!id) {
+      return NextResponse.json({ error: "id is required." }, { status: 400 });
+    }
+
+    if (action === "delete_published") {
+      const removed = await removePublicCommentById(id);
+      if (!removed) {
+        return NextResponse.json({ error: "Published comment not found." }, { status: 404 });
+      }
+      const [pending, published] = await Promise.all([readPendingComments(), readPublicComments()]);
+      return NextResponse.json({
+        ok: true,
+        action,
+        comment: removed as CommentItem,
+        pending,
+        published
+      });
+    }
+
+    if (action !== "approve" && action !== "reject") {
+      return NextResponse.json({ error: "action must be approve, reject, or delete_published." }, { status: 400 });
     }
 
     const comment = await removePendingById(id);

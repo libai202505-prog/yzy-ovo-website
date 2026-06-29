@@ -438,6 +438,41 @@ body::after {
   border-radius: 1.2rem;
   background: rgba(255, 255, 255, 0.48);
   padding: 0.95rem 1rem;
+  flex-shrink: 0;
+}
+
+.comment-list-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: min(22rem, 42vh);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 0.35rem;
+  scroll-behavior: smooth;
+}
+
+.comment-list-panel--admin {
+  max-height: min(28rem, 55vh);
+}
+
+.comment-list-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.comment-list-panel::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(45, 212, 191, 0.45);
+}
+
+.comment-delete-btn {
+  border-color: rgba(248, 113, 113, 0.55);
+  color: rgb(185 28 28);
+  background: rgba(254, 242, 242, 0.75);
+}
+
+.comment-delete-btn:hover {
+  background: rgba(254, 226, 226, 0.95);
 }
 
 
