@@ -168,15 +168,6 @@ export default function SharePage() {
     }
   }
 
-  function applyIconUrl(id: string, raw: string) {
-    const url = raw.trim();
-    if (!url) return;
-    if (!isShareIconImage(url) && !url.startsWith("data:")) {
-      setStatus("图标链接请以 https:// 或 /public/... 开头。");
-      return;
-    }
-    updateResource(id, { icon: url });
-  }
 
   function startEdit(id: string) {
     setManageMode(true);
@@ -336,16 +327,18 @@ export default function SharePage() {
                   <>
                     <div className="resource-card-top share-edit-top">
                       <div className="share-icon-editor">
-                        <ShareResourceIcon icon={item.icon} />
-                        {!isShareIconImage(item.icon) ? (
+                        {isShareIconImage(item.icon) ? (
+                          <ShareResourceIcon icon={item.icon} />
+                        ) : (
                           <input
-                            className="share-icon-input"
+                            className="share-icon-input share-icon-input--solo"
                             value={item.icon}
                             onChange={(event) => updateResource(item.id, { icon: event.target.value })}
                             aria-label="图标符号"
-                            maxLength={8}
+                            placeholder="★"
+                            maxLength={32}
                           />
-                        ) : null}
+                        )}
                         <div className="share-icon-tools">
                           <button type="button" className="share-icon-tool-btn" onClick={() => triggerIconUpload(item.id)}>
                             上传图片
@@ -360,12 +353,21 @@ export default function SharePage() {
                       <div className="share-edit-main">
                         <input className="project-inline-input share-title-input" value={item.title} onChange={(event) => updateResource(item.id, { title: event.target.value })} placeholder="资源标题" />
                         <input className="project-inline-input share-url-input" value={item.url} onChange={(event) => updateResource(item.id, { url: event.target.value })} placeholder="https://..." />
-                        <input
-                          className="share-icon-url-input"
-                          placeholder="或粘贴图标 URL"
-                          defaultValue={isShareIconImage(item.icon) && !item.icon.startsWith("data:") ? item.icon : ""}
-                          onBlur={(event) => applyIconUrl(item.id, event.target.value)}
-                        />
+                        {isShareIconImage(item.icon) && !item.icon.startsWith("data:") ? (
+                          <input
+                            className="share-icon-path-input"
+                            value={item.icon}
+                            onChange={(event) => updateResource(item.id, { icon: event.target.value.trim() })}
+                            placeholder="/icons/bilibili.svg"
+                            aria-label="站内图标路径"
+                          />
+                        ) : item.icon.startsWith("data:") ? (
+                          <p className="share-icon-hint">已上传图片，保存后访客可见。可点「改回符号」换文字图标。</p>
+                        ) : (
+                          <p className="share-icon-hint">
+                            左侧方框可填符号，或直接填 <code>/icons/bilibili.svg</code>（文件放在 <code>public/icons/</code> 后随 git 部署）。
+                          </p>
+                        )}
                       </div>
                     </div>
                     <div className="share-edit-row">

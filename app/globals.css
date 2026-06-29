@@ -2150,15 +2150,30 @@ button.floating-edit {
   background: rgba(255, 255, 255, 0.9);
 }
 
-.share-icon-url-input {
+.share-icon-input--solo {
+  flex-shrink: 0;
+}
+
+.share-icon-path-input {
   width: 100%;
-  margin-top: 0.35rem;
   border-radius: 0.75rem;
   border: 1px solid rgba(148, 163, 184, 0.24);
   background: rgba(255, 255, 255, 0.55);
-  padding: 0.45rem 0.55rem;
-  font-size: 0.75rem;
+  padding: 0.5rem 0.65rem;
+  font-size: 0.82rem;
   color: rgb(71 85 105);
+}
+
+.share-icon-hint {
+  margin: 0;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: rgb(100 116 139);
+}
+
+.share-icon-hint code {
+  font-size: 0.68rem;
+  color: rgb(51 65 85);
 }
 
 .share-edit-main {

@@ -3,8 +3,10 @@ export function isShareIconImage(icon: string) {
   const value = icon.trim();
   if (!value) return false;
   if (value.startsWith("data:image/")) return true;
-  if (value.startsWith("/")) return true;
-  return /^https?:\/\//i.test(value);
+  if (/^https?:\/\//i.test(value)) return true;
+  if (value.startsWith("/icons/") && value.length > 9) return true;
+  if (value.startsWith("/") && /\.(svg|png|jpe?g|webp|gif|ico)(\?.*)?$/i.test(value)) return true;
+  return false;
 }
 
 /** Resize/compress for Redis JSON (keeps share list small). */
