@@ -1,20 +1,9 @@
 "use client";
 
 import SiteNav from "../../components/SiteNav";
-import { compressShareIconFile, isShareIconImage } from "../../lib/shareIcon";
+import { CardResourceIcon, IconPathEditor } from "../../components/IconPathEditor";
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { ResourceItem, defaultResources, getResourceCategories, normalizeResources } from "./shareData";
-
-function ShareResourceIcon({ icon }: { icon: string }) {
-  if (isShareIconImage(icon)) {
-    return (
-      <div className="resource-icon resource-icon--image">
-        <img src={icon} alt="" />
-      </div>
-    );
-  }
-  return <div className="resource-icon">{icon}</div>;
-}
 
 function starText(count: number) {
   return "★".repeat(count) + "☆".repeat(Math.max(0, 5 - count));
@@ -70,8 +59,6 @@ function textToTags(text: string) {
 
 export default function SharePage() {
   const secretInputRef = useRef<HTMLInputElement>(null);
-  const iconFileInputRef = useRef<HTMLInputElement>(null);
-  const [iconUploadTargetId, setIconUploadTargetId] = useState<string | null>(null);
   const [resources, setResources] = useState<ResourceItem[]>(defaultResources);
   const [drafts, setDrafts] = useState<ResourceItem[]>(defaultResources);
   const [query, setQuery] = useState("");
@@ -145,29 +132,6 @@ export default function SharePage() {
   function updateResource(id: string, patch: Partial<ResourceItem>) {
     setDrafts((old) => old.map((item) => (item.id === id ? { ...item, ...patch } : item)));
   }
-
-  function triggerIconUpload(id: string) {
-    setIconUploadTargetId(id);
-    iconFileInputRef.current?.click();
-  }
-
-  async function handleIconFileImport(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    const id = iconUploadTargetId;
-    event.target.value = "";
-    setIconUploadTargetId(null);
-    if (!file || !id) return;
-
-    setStatus("正在压缩图标…");
-    try {
-      const dataUrl = await compressShareIconFile(file);
-      updateResource(id, { icon: dataUrl });
-      setStatus("图标已上传（会随「完成」一起保存到线上）。");
-    } catch (error) {
-      setStatus(error instanceof Error ? error.message : "图标上传失败。");
-    }
-  }
-
 
   function startEdit(id: string) {
     setManageMode(true);
@@ -260,7 +224,6 @@ export default function SharePage() {
     <main className="sub-page min-h-screen px-5 pb-16 pt-28 text-slate-700 sm:px-8 lg:px-12">
       <SiteNav showEdit={false} />
       <input ref={secretInputRef} type="file" accept=".txt,.json,.env,.key,text/plain,application/json" className="hidden" onChange={handleSecretImport} />
-      <input ref={iconFileInputRef} type="file" accept="image/*" className="hidden" onChange={handleIconFileImport} />
 
       {manageMode ? (
         <div className="project-admin-actions share-admin-actions">
@@ -325,46 +288,17 @@ export default function SharePage() {
 
                 {isEditing ? (
                   <>
-                    <div className="resource-card-top share-edit-top">
-                      <div className="share-icon-editor">
-                        {isShareIconImage(item.icon) ? (
-                          <ShareResourceIcon icon={item.icon} />
-                        ) : (
-                          <div className="resource-icon share-icon-preview-text">{item.icon || "★"}</div>
-                        )}
-                        <div className="share-icon-tools">
-                          <button type="button" className="share-icon-tool-btn" onClick={() => triggerIconUpload(item.id)}>
-                            上传图片
-                          </button>
-                          {isShareIconImage(item.icon) ? (
-                            <button type="button" className="share-icon-tool-btn" onClick={() => updateResource(item.id, { icon: "★" })}>
-                              改回符号
-                            </button>
-                          ) : null}
-                        </div>
-                      </div>
-                      <div className="share-edit-main">
+                    <div className="share-edit-icon-row">
+                      <IconPathEditor
+                        icon={item.icon}
+                        onChange={(icon) => updateResource(item.id, { icon })}
+                        onStatus={setStatus}
+                        defaultSymbol="★"
+                      />
+                    </div>
+                    <div className="share-edit-main">
                         <input className="project-inline-input share-title-input" value={item.title} onChange={(event) => updateResource(item.id, { title: event.target.value })} placeholder="资源标题" />
                         <input className="project-inline-input share-url-input" value={item.url} onChange={(event) => updateResource(item.id, { url: event.target.value })} placeholder="https://..." />
-                        <label className="share-icon-path-label">
-                          图标路径
-                          <input
-                            className="share-icon-path-input"
-                            value={item.icon.startsWith("data:") ? "" : item.icon}
-                            onChange={(event) => updateResource(item.id, { icon: event.target.value })}
-                            placeholder="/icons/gufeng1.jpg 或符号 ★"
-                            aria-label="图标路径或符号"
-                            disabled={item.icon.startsWith("data:")}
-                          />
-                        </label>
-                        {item.icon.startsWith("data:") ? (
-                          <p className="share-icon-hint">当前为上传图片。要改用 public/icons 路径，请先点「改回符号」再填路径。</p>
-                        ) : (
-                          <p className="share-icon-hint">
-                            把文件放进 <code>public/icons/</code> 后 push 部署，这里填 <code>/icons/文件名.jpg</code>；也可填 <code>★</code>、<code>B</code> 等符号。
-                          </p>
-                        )}
-                      </div>
                     </div>
                     <div className="share-edit-row">
                       <input className="project-inline-input" value={item.category} onChange={(event) => updateResource(item.id, { category: event.target.value })} placeholder="分类" />
@@ -377,7 +311,7 @@ export default function SharePage() {
                 ) : (
                   <a href={item.url} target="_blank" rel="noreferrer" className="resource-card-link" aria-label={`打开 ${item.title}`}>
                     <div className="resource-card-top">
-                      <ShareResourceIcon icon={item.icon} />
+                      <CardResourceIcon icon={item.icon} />
                       <div>
                         <h2>{item.title}</h2>
                         <p className="resource-url">{item.url.replace(/^https?:\/\//, "").slice(0, 34)}...</p>

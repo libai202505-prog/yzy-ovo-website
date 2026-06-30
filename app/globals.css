@@ -2150,6 +2150,40 @@ button.floating-edit {
   background: rgba(255, 255, 255, 0.9);
 }
 
+.icon-path-editor-block {
+  display: grid;
+  gap: 0.65rem;
+  width: 100%;
+}
+
+.icon-path-editor-block .share-icon-editor {
+  flex-direction: row;
+  align-items: flex-start;
+  width: auto;
+  gap: 0.75rem;
+}
+
+.share-edit-icon-row {
+  margin-bottom: 0.75rem;
+}
+
+.project-list-cover {
+  width: 4.875rem;
+  height: 4.875rem;
+  border-radius: 1rem;
+  flex-shrink: 0;
+}
+
+.project-card-body {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+
+.project-cover-edit-wrap {
+  margin-bottom: 0.85rem;
+}
+
 .share-icon-path-label {
   display: grid;
   gap: 0.35rem;

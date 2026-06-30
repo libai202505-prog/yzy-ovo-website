@@ -6,6 +6,7 @@ export type ProjectItem = {
   summary: string;
   website: string;
   github: string;
+  cover: string;
 };
 
 export const defaultProjects: ProjectItem[] = [
@@ -16,7 +17,8 @@ export const defaultProjects: ProjectItem[] = [
     tag: "Weather",
     summary: "独立的气象网页项目，用来收藏天气信息、可视化灵感和页面实验。",
     website: "https://libai202505-prog.github.io/weather-websites-of-y/",
-    github: "https://github.com/libai202505-prog/weather-websites-of-y"
+    github: "https://github.com/libai202505-prog/weather-websites-of-y",
+    cover: "/avatar.webp"
   },
   {
     id: "yzy-ovo-site",
@@ -25,7 +27,8 @@ export const defaultProjects: ProjectItem[] = [
     tag: "Personal Wiki",
     summary: "浅蓝渐变个人 Wiki，包含文章、项目、关于、推荐、友链和互动角落。",
     website: "/",
-    github: "https://github.com/libai202505-prog/yzy-ovo-website"
+    github: "https://github.com/libai202505-prog/yzy-ovo-website",
+    cover: "/avatar.webp"
   }
 ];
 
@@ -40,6 +43,13 @@ function cleanUrl(value: unknown, fallback = "") {
     return text;
   }
   return fallback;
+}
+
+function cleanCover(value: unknown, fallback: string) {
+  const text = typeof value === "string" ? value.trim() : "";
+  if (!text) return fallback;
+  if (text.startsWith("data:image/")) return text.slice(0, 120_000);
+  return cleanUrl(value, fallback) || fallback;
 }
 
 export function normalizeProjects(value: unknown): ProjectItem[] {
@@ -58,7 +68,8 @@ export function normalizeProjects(value: unknown): ProjectItem[] {
         tag: cleanString(record.tag, fallback.tag, 40),
         summary: cleanString(record.summary, fallback.summary, 320),
         website: cleanUrl(record.website, fallback.website),
-        github: cleanUrl(record.github, fallback.github)
+        github: cleanUrl(record.github, fallback.github),
+        cover: cleanCover(record.cover, fallback.cover ?? "/avatar.webp")
       };
     })
     .filter((item) => item.title)

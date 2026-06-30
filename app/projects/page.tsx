@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import SiteNav from "../../components/SiteNav";
+import { CardResourceIcon, IconPathEditor } from "../../components/IconPathEditor";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { ProjectItem, defaultProjects, normalizeProjects } from "./projectData";
 
@@ -35,7 +35,8 @@ function makeProject(): ProjectItem {
     tag: "Project",
     summary: "写一段项目简介。",
     website: "/",
-    github: "https://github.com/libai202505-prog"
+    github: "https://github.com/libai202505-prog",
+    cover: "/avatar.webp"
   };
 }
 
@@ -223,7 +224,22 @@ export default function ProjectsPage() {
                     )}
                   </div>
                 ) : null}
-                <Image src="/avatar.webp" alt="" width={78} height={78} className="post-cover object-cover" />
+                {isEditing ? (
+                  <div className="project-cover-edit-wrap">
+                    <IconPathEditor
+                      icon={project.cover}
+                      onChange={(cover) => updateProject(project.id, { cover })}
+                      onStatus={setStatus}
+                      previewClassName="resource-icon project-list-cover"
+                      pathPlaceholder="/icons/gufeng1.jpg 或 /avatar.webp"
+                      defaultSymbol="/avatar.webp"
+                    />
+                  </div>
+                ) : null}
+                <div className="project-card-body">
+                {!isEditing ? (
+                  <CardResourceIcon icon={project.cover} className="resource-icon project-list-cover" defaultSymbol="★" />
+                ) : null}
                 <div className="min-w-0 flex-1">
                   {isEditing ? (
                     <>
@@ -252,6 +268,7 @@ export default function ProjectsPage() {
                       </div>
                     </>
                   )}
+                </div>
                 </div>
               </article>
             );
