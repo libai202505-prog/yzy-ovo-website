@@ -1,0 +1,22 @@
+# Private notes (optional)
+
+Copy to repo root as `DEPLOYMENT.private.md` (gitignored). Fill in **your** URLs and secrets there — do not commit that file.
+
+## Vercel (minimum)
+
+- `UPSTASH_REDIS_REST_URL`
+- `UPSTASH_REDIS_REST_TOKEN`
+- `ADMIN_SECRET` — long random string, same value for owner edit APIs
+
+Optional: `TELEGRAM_NOTIFY_BOT_TOKEN`, `TELEGRAM_NOTIFY_CHAT_ID`, `SITE_PUBLIC_URL`
+
+Set for Production + Preview, then redeploy.
+
+## Your copy can include (not in Git)
+
+- Bookmarked admin / moderation URL on your domain
+- How you import `ADMIN_SECRET` on phone or desktop
+- Upstash key names if you reset data often
+- Personal runbook only you need
+
+Public README stays minimal; details live in your local `DEPLOYMENT.private.md` only.

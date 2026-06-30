@@ -2,148 +2,63 @@
 
 A soft blue bilingual personal wiki / dashboard site built with Next.js and Tailwind CSS.
 
-## Update content
+Live site: [yaozhouye.com](https://www.yaozhouye.com/)
 
-Most homepage text and links are in:
+## Stack
 
-```txt
-app/page.tsx
+- **Next.js** (App Router), **Tailwind CSS**
+- **Upstash Redis** (REST) for likes, comments, and editable site content via API routes under `app/api/`
+
+## Local development
+
+```bash
+npm install
+npm run dev
 ```
 
-The about page is in:
+Build:
 
-```txt
-app/about/page.tsx
+```bash
+npm run build
 ```
 
-The writing editor page is in:
+## Environment variables
 
-```txt
-app/write/page.tsx
-```
+Configure these in your host (e.g. Vercel **Settings → Environment Variables**). **Do not commit secrets to Git.**
 
-The top banner background image is:
+| Variable | Purpose |
+|----------|---------|
+| `UPSTASH_REDIS_REST_URL` | Upstash Redis REST endpoint |
+| `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis REST token |
+| `ADMIN_SECRET` | Long random secret for owner-only edit/save APIs (e.g. about editor, moderation). Use 24+ characters. |
 
-```txt
-public/hero-bg.webp
-```
+Optional (owner notifications):
 
-## Free backend with Upstash Redis
+| Variable | Purpose |
+|----------|---------|
+| `TELEGRAM_NOTIFY_BOT_TOKEN` | Bot token for optional alerts |
+| `TELEGRAM_NOTIFY_CHAT_ID` | Your Telegram chat id |
+| `SITE_PUBLIC_URL` | Public site URL used in notification links |
 
-This version includes two backend API routes:
+Create a free Redis database on [Upstash](https://upstash.com/), then copy the REST URL and token from the console.
 
-```txt
-app/api/likes/route.ts
-app/api/comments/route.ts
-```
+After changing env vars, redeploy.
 
-They store:
+## Content & pages
 
-- total site likes
-- public comments (only after you approve them)
-- pending comments waiting in the moderation queue
+| Area | Location |
+|------|----------|
+| Homepage copy & layout | `app/page.tsx` |
+| About | `app/about/page.tsx` |
+| Writing / Markdown draft | `app/write/page.tsx` |
+| Hero background | `public/hero-bg.webp` |
 
-### Comment moderation
+Articles drafted in `/write` can be published by adding the generated Markdown to the repo. Share and project cards are edited in-app when Redis and `ADMIN_SECRET` are configured.
 
-Visitors submit comments into a **pending queue**. They are **not** shown on the homepage until you approve them.
+## Security note
 
-Moderation page (bookmark this URL; it is not linked in the public nav):
+This is a **personal site** repo. Admin and moderation UIs exist in the codebase but are **not linked from public navigation**. Keep `ADMIN_SECRET` and Redis credentials only in environment variables. For a detailed private ops checklist, copy `docs/DEPLOYMENT.private.md.example` to `DEPLOYMENT.private.md` locally (that filename is gitignored).
 
-```txt
-/admin/comments
-```
+## License
 
-Use the same `ADMIN_SECRET` as `/about/edit` (import from a local `.txt` / `.env` file). Approve or reject pending comments; use **从首页删除** to remove already-public comments from the home page.
-
-Optional Telegram alert when a new comment arrives (configure in Vercel):
-
-```txt
-TELEGRAM_NOTIFY_BOT_TOKEN
-TELEGRAM_NOTIFY_CHAT_ID
-SITE_PUBLIC_URL=https://www.yaozhouye.com
-```
-
-Use a bot token and **your** chat id (for example the numeric id from Telegram). The message includes a link to `/admin/comments`. Email is not built in; use Telegram or open the admin page on your phone.
-
-Redis keys:
-
-```txt
-yzy-ovo:comments          # approved, public
-yzy-ovo:comments:pending  # waiting for review
-```
-
-### Setup on Upstash
-
-1. Create a free Redis database on Upstash.
-2. Open the database details page.
-3. Copy these two values from the REST API section:
-   - `UPSTASH_REDIS_REST_URL`
-   - `UPSTASH_REDIS_REST_TOKEN`
-
-### Setup on Vercel
-
-Go to:
-
-```txt
-Vercel project -> Settings -> Environment Variables
-```
-
-Add:
-
-```txt
-UPSTASH_REDIS_REST_URL
-UPSTASH_REDIS_REST_TOKEN
-ADMIN_SECRET=你自己设置的一串长密钥（与 /about/edit 相同，≥24 字符，勿提交到 Git）
-```
-
-Optional (new comment Telegram alert):
-
-```txt
-TELEGRAM_NOTIFY_BOT_TOKEN
-TELEGRAM_NOTIFY_CHAT_ID
-SITE_PUBLIC_URL=https://www.yaozhouye.com
-```
-
-Select `Production` and `Preview`. `Development` is not required for the live website.
-
-Then redeploy the site.
-
-## Writing articles
-
-The homepage write button opens:
-
-```txt
-/write
-```
-
-This page lets you draft, preview, import Markdown, add cover/meta info, copy Markdown, and download a `.md` file. To publish permanently, add the generated Markdown file to your GitHub repository.
-
-## Reset likes or comments
-
-In Upstash Console, you can delete these keys if you want to reset data:
-
-```txt
-yzy-ovo:likes
-yzy-ovo:comments
-yzy-ovo:comments:pending
-```
-
-## v10 更新
-
-- 写文章页的「导入密钥」现在会像「导入 MD」一样打开本地文件选择器，支持 `.txt`、`.json`、`.env`、`.key`。
-- 预览改成独立预览模式：会显示文章标题、日期、摘要、封面、正文和目录，不再只是原地切换一个空白框。
-- 推荐分享页改成随机推荐页：支持搜索、分类筛选、随机抽取资源。
-
-## 管理员编辑个人介绍
-
-`/about` 页面右上角的“编辑”现在会进入 `/about/edit`，这是一个表单式个人介绍编辑器，不再跳到通用 Markdown 写文章页。
-
-要让“保存到线上”生效，需要在 Vercel 的 Environment Variables 里额外添加：
-
-```txt
-ADMIN_SECRET=你自己设置的一串长密钥
-```
-
-建议随机写一串长一点的内容，比如 24 位以上。这个值不要放到 GitHub 代码里。
-
-编辑页可以导入 `.txt` / `.env` / `.json` 密钥文件。普通访客即使打开 `/about/edit`，没有 `ADMIN_SECRET` 也不能把内容保存到线上。
+Personal project — use as inspiration; no warranty.
